@@ -4,28 +4,24 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Grabber;
-import frc.robot.subsystems.Shooter;
+
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoCommandGroup1 extends SequentialCommandGroup {
   private DriveTrain m_driveTrain;
-  private double m_encPos;
   /** Creates a new AutoCommandGroup1. */
-  public AutoCommandGroup1(Grabber grabber, Shooter shooter, DriveTrain drive, double turnAngle, double reverseDistance) {
+  public AutoCommandGroup1(Grabber grabber, DriveTrain drive, double turnAngle, double reverseDistance) {
     m_driveTrain = drive;
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
@@ -36,10 +32,9 @@ public class AutoCommandGroup1 extends SequentialCommandGroup {
       new ParallelDeadlineGroup(
         new ParallelCommandGroup(
           new ScheduleCommand(
-            new AutoGrabbyCommand(grabber, shooter)
+            new AutoGrabbyCommand(grabber)
           ),
-          new BallAtGrabberCommand(grabber),
-          new InstantCommand(shooter::onWheel, shooter)
+          new BallAtGrabberCommand(grabber)
         ),
         new SequentialCommandGroup(
           new WaitCommand(1),
@@ -60,13 +55,12 @@ public class AutoCommandGroup1 extends SequentialCommandGroup {
           4
         )
       ),
-      new GoalFinder(drive, Constants.LimeLight.kGoalDriveP, true),
+      new GoalFinder(drive, Constants.LimeLight.kGoalDriveP, true)
       // new ConditionalCommand(
       //   new GoalFinder(drive, Constants.LimeLight.kGoalDriveP, true),
       //   new InstantCommand(drive::resetEncoders, drive).andThen(new AutoDriveCommand(m_driveTrain, reverseDistance, 0.4)),
       //   NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tv").getDouble(0) < 1.0
       // ),
-      new ShootyCommand(shooter, grabber)
     );
   }
 }

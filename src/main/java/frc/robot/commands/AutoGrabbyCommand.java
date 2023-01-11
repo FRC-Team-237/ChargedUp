@@ -9,10 +9,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
+
 import frc.robot.subsystems.Grabber;
 import frc.robot.subsystems.Leds;
-import frc.robot.subsystems.Shooter;
 
 public class AutoGrabbyCommand extends CommandBase {
 
@@ -27,15 +26,14 @@ public class AutoGrabbyCommand extends CommandBase {
   private states currentState;
   private double timestamp;
   private Grabber m_grabber;
-  private Shooter m_shooter;
+  
 
   /** Creates a new AutoGrabbyCommand. */
-  public AutoGrabbyCommand(Grabber grabber, Shooter shooter) {
+  public AutoGrabbyCommand(Grabber grabber) {
     // Use addRequirements() here to declare subsystem dependencies.
     timestamp = 0;
     m_grabber = grabber;
-    m_shooter = shooter;
-    addRequirements(m_grabber, m_shooter);
+    addRequirements(m_grabber);
   }
 
   // Called when the command is initially scheduled.
@@ -48,7 +46,7 @@ public class AutoGrabbyCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (m_shooter.isBallReady() && m_grabber.ballAtGrabber()) {
+    if (m_grabber.ballAtGrabber()) {
       Leds.getInstance().setColor(Constants.Colors.kTwoBalls);
     } else if (m_grabber.ballAtGrabber()) {
       Leds.getInstance().setColor(Constants.Colors.kOneBall);
@@ -90,12 +88,6 @@ public class AutoGrabbyCommand extends CommandBase {
         break;
       }
       case OPENGRABBER: {
-        if (!m_shooter.isBallReady()) {
-          m_grabber.grabbyGrab(false);
-          // Leds.getInstance().setColor(Constants.Colors.kOneBall);
-        } else {
-          // Leds.getInstance().setColor(Constants.Colors.kTwoBalls);
-        }
         currentState = states.END;
         break;
       }
@@ -108,7 +100,7 @@ public class AutoGrabbyCommand extends CommandBase {
   public void end(boolean interrupted) {
     //m_grabber.grabbyGrab(false);
     m_grabber.lowerGrabber(false);
-    if (m_shooter.isBallReady() && m_grabber.ballAtGrabber()) {
+    if (m_grabber.ballAtGrabber()) {
       Leds.getInstance().setColor(Constants.Colors.kTwoBalls);
     } else if (Leds.getInstance().getColor() != Constants.Colors.kHang) {
       Leds.getInstance().resetColor();
