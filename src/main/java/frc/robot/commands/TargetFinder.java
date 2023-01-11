@@ -4,9 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -40,8 +38,8 @@ public class TargetFinder extends CommandBase {
   public void execute() {
     double tv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0); 
     double tx = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0); 
-    double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0); 
-    double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
+    //double ty = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0); 
+    //double ta = NetworkTableInstance.getDefault().getTable("limelight").getEntry("ta").getDouble(0);
     
     if (tv < 1.0)
     {

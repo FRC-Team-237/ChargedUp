@@ -6,9 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -49,7 +47,7 @@ public class GoalFinder extends CommandBase {
     double tv = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tv").getDouble(0); 
     double tx = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tx").getDouble(0); 
     double ty = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("ty").getDouble(0); 
-    double ta = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("ta").getDouble(0);
+  
     
     SmartDashboard.putNumber("Shooter tx", tx);
     SmartDashboard.putNumber("Shooter ty", ty);
