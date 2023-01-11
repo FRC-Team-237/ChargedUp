@@ -98,7 +98,7 @@ public class DriveTrain extends SubsystemBase {
 
     m_gyro = new AHRS(Port.kUSB);
     resetEncoders();
-    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d()); 
+    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), 0, 0); 
     m_turbo = false;
   }
 
@@ -185,7 +185,7 @@ public void resetHeading(){
 
   public void resetOdometry(Pose2d pose){
     resetEncoders();
-    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
+    m_odometry.resetPosition( Rotation2d.fromDegrees(getHeading()),0.0,0, pose );
   }
 
   public Pose2d getPose(){
