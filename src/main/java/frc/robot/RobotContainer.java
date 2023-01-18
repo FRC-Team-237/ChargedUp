@@ -36,13 +36,14 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.subsystems.Grabber;
-
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Leds;
 
 import frc.robot.subsystems.TalonRamseteControllerAbstraction;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -79,6 +80,7 @@ public class RobotContainer {
   private DriveTrain m_driveTrain;
   public Grabber m_grabber;
   public AutoGrabbyCommand m_grabCommand;
+  private Intake m_intake;
 
 
   private boolean m_isRedAlliance;
@@ -91,6 +93,7 @@ public class RobotContainer {
     m_driveTrain = new DriveTrain();
     m_grabber = new Grabber();
     m_grabCommand = new AutoGrabbyCommand(m_grabber);
+    m_intake = new Intake(Constants.kHangerOneSpark, Constants.kHangerTwoSpark);
    
 
     
@@ -118,9 +121,9 @@ public class RobotContainer {
     m_driveTrain.setDefaultCommand(
       new RunCommand(
         () -> 
-          m_driveTrain.drive(
+          m_driveTrain.arcadeDriveVelocity(
             m_xboxController.getLeftX(),
-            -m_xboxController.getLeftY()
+            m_xboxController.getLeftY()
           ), m_driveTrain
         )
         );
@@ -144,6 +147,42 @@ public class RobotContainer {
     new JoystickButton(m_xboxController, Button.kX.value)
       .whileTrue(
         new GoalFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP, true)
+      );
+    new JoystickButton(m_xboxController, Button.kA.value)
+      .whileTrue(
+        new RepeatCommand(new InstantCommand(
+          () -> {
+            m_intake.startIntake();
+            System.out.println("Starting Intake...");
+          },
+          m_intake
+        )
+      ))
+      .whileFalse(
+        new InstantCommand(
+          () -> {
+            m_intake.stopIntake();
+            System.out.println("Stopping Intake...");
+          },
+          m_intake
+        )
+      );
+    new JoystickButton(m_xboxController, Button.kB.value)
+      .whileTrue(
+        new RepeatCommand(new InstantCommand(
+          () -> {
+            m_driveTrain.enableTurbo();
+          },
+          m_intake
+        )
+      ))
+      .whileFalse(
+        new InstantCommand(
+          () -> {
+            m_driveTrain.disableTurbo();
+          },
+          m_intake
+        )
       );
 
       // control pannel buttons 
