@@ -36,7 +36,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final DifferentialDrive m_differentialDrive;
 
-  public AHRS m_gyro;
+  //public AHRS m_gyro;
 
   private final DifferentialDriveOdometry m_odometry; 
 
@@ -96,9 +96,9 @@ public class DriveTrain extends SubsystemBase {
     m_differentialDrive = new DifferentialDrive(m_controllerGroupL, m_controllerGroupR);
     //m_differentialDrive.setDeadband(0.0);
 
-    m_gyro = new AHRS(Port.kUSB);
+    //m_gyro = new AHRS(Port.kUSB);
     resetEncoders();
-    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d(), 0, 0); 
+    m_odometry = new DifferentialDriveOdometry(new Rotation2d(0.0,0.0), 0, 0); 
     m_turbo = false;
   }
 
@@ -133,11 +133,11 @@ public class DriveTrain extends SubsystemBase {
   }
 
 public void resetHeading(){
-  m_gyro.reset();
+  //m_gyro.reset();
 }
 
   public double getHeading() {
-    return -Math.IEEEremainder(m_gyro.getAngle(), 360);
+    return 0.0;//return -Math.IEEEremainder(m_gyro.getAngle(), 360);
   }
   public void resetPitch(){
     m_gyro.reset();
@@ -147,7 +147,7 @@ public void resetHeading(){
     return Math.IEEEremainder(m_gyro.getPitch(), 360);
   }
   public double getTurnRate(){
-    return m_gyro.getRate(); 
+    return 0.0;//m_gyro.getRate(); 
   }
   public void resetEncoders() {
     m_motorFL.setSelectedSensorPosition(0);
@@ -159,8 +159,9 @@ public void resetHeading(){
   public void drive(double xSpeed, double zRotation) {
     SmartDashboard.putNumber("Arcade Drive X Speed", xSpeed);
     SmartDashboard.putNumber("Arcade Drive Z Rotation", zRotation);
+    
     if (!m_turbo) {
-      m_differentialDrive.arcadeDrive(xSpeed * 0.80, zRotation * 0.80);
+      m_differentialDrive.arcadeDrive(xSpeed * 0.60, zRotation * 0.60);
     } else {
       m_differentialDrive.arcadeDrive(xSpeed, zRotation);
     }
@@ -177,12 +178,20 @@ public void resetHeading(){
   public void driveVelocity(double left, double right){
     double leftNativeVel = ConversionHelper.convertWPILibTrajectoryUnitsToTalonSRXNativeUnits(left, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
     double rightNativeVel = ConversionHelper.convertWPILibTrajectoryUnitsToTalonSRXNativeUnits(right, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
+    
     this.m_motorFR.set(ControlMode.Velocity, rightNativeVel);
     this.m_motorFL.set(ControlMode.Velocity, leftNativeVel);
+    m_differentialDrive.feed();
     SmartDashboard.putNumber("Left Target Vel", leftNativeVel);
     SmartDashboard.putNumber("Left Target Vs Actual", leftNativeVel-this.m_motorFL.getSelectedSensorVelocity()); 
   }
-
+  public void arcadeDriveVelocity(double xSpeed, double zRotation){
+    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    double leftVel = ConversionHelper.mapRange(speeds.left, -1.0, 1.0, ConversionHelper.convertFeetToMeters(-13.5), ConversionHelper.convertFeetToMeters(13.5));
+    double rightVel = ConversionHelper.mapRange(speeds.right, -1.0, 1.0, ConversionHelper.convertFeetToMeters(-13.5), ConversionHelper.convertFeetToMeters(13.5));
+    driveVelocity(leftVel, rightVel); 
+    
+  }
   public DifferentialDriveWheelSpeeds getWheelSpeeds(){
     return new DifferentialDriveWheelSpeeds(
       ConversionHelper.convertTalonNativeToWPITrajectoryUnits(this.m_motorFL.getSelectedSensorVelocity(), Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution),
@@ -201,14 +210,14 @@ public void resetHeading(){
 
   @Override
   public void periodic() {
-    var gyroAngle = Rotation2d.fromDegrees(-m_gyro.getAngle());
+    //var gyroAngle = Rotation2d.fromDegrees(-m_gyro.getAngle());
     SmartDashboard.putNumber("current heading", getHeading());
     double leftDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int)m_motorFL.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true); 
     double rightDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int)m_motorFR.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true);
     getEncPos();
 
     // Update the pose
-    m_odometry.update(gyroAngle, leftDistance, rightDistance);
+    //m_odometry.update(gyroAngle, leftDistance, rightDistance);
   }
 
   public void enableTurbo() {

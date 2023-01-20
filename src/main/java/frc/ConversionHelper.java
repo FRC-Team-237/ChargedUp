@@ -81,4 +81,8 @@ public class ConversionHelper {
     public static double convertMetersToFeet(double value){
         return value * 1/0.3048;
     }
+
+    public static double mapRange(double input, double inMin, double inMax, double outMin, double outMax) {
+        return (outMax - outMin) * (input - inMin) / (inMax - inMin) + outMin;
+    }
 }
