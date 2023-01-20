@@ -139,6 +139,13 @@ public void resetHeading(){
   public double getHeading() {
     return -Math.IEEEremainder(m_gyro.getAngle(), 360);
   }
+  public void resetPitch(){
+    m_gyro.reset();
+  }
+
+  public double getPitch(){
+    return Math.IEEEremainder(m_gyro.getPitch(), 360);
+  }
   public double getTurnRate(){
     return m_gyro.getRate(); 
   }
