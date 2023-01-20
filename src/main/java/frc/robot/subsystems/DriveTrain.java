@@ -36,7 +36,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final DifferentialDrive m_differentialDrive;
 
-  //public AHRS m_gyro;
+  public AHRS m_gyro;
 
   private final DifferentialDriveOdometry m_odometry; 
 
@@ -96,7 +96,7 @@ public class DriveTrain extends SubsystemBase {
     m_differentialDrive = new DifferentialDrive(m_controllerGroupL, m_controllerGroupR);
     //m_differentialDrive.setDeadband(0.0);
 
-    //m_gyro = new AHRS(Port.kUSB);
+    m_gyro = new AHRS(Port.kUSB);
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(new Rotation2d(0.0,0.0), 0, 0); 
     m_turbo = false;
