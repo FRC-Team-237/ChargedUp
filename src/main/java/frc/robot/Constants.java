@@ -62,6 +62,7 @@ public final class Constants {
     public static final int kEject = 1;
     public static final int kHangOverride = 4;
     public static final int kAutoBallSwitch = 5;
+    public static final int kBalanceSwitch = -1;
     
 
      public final class DTConsts {

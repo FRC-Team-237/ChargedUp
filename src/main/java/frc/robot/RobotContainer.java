@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoCommandGroup1;
 import frc.robot.commands.AutoDriveCommand;
 import frc.robot.commands.AutoGrabbyCommand;
@@ -185,17 +186,10 @@ public class RobotContainer {
         )
       );
 
-      // control pannel buttons 
-
-    
-    
-    new JoystickButton(panel, Constants.kAutoPickup)
-      .whileTrue(m_grabCommand);
-    
     new JoystickButton(m_xboxController, Button.kBack.value)
       .whileTrue(
         new InstantCommand(m_driveTrain::resetHeading).andThen(new InstantCommand(m_driveTrain::resetEncoders, m_driveTrain))
-        // .andThen(new TurnToAngle(180, m_driveTrain, 0.0113, 0.0000, 0.0025, 0))
+      // .andThen(new TurnToAngle(180, m_driveTrain, 0.0113, 0.0000, 0.0025, 0))
         .andThen(new TurnToAngle(
           180,
           m_driveTrain,
@@ -204,10 +198,26 @@ public class RobotContainer {
           SmartDashboard.getNumber("TurnToAngle D", 0.0025),
           SmartDashboard.getNumber("TurnToAngle Deadband", 0)
         ))
-      );
+    );
+
     new JoystickButton(m_xboxController, Button.kStart.value)
       .whileTrue(new AutoDriveCommand(m_driveTrain, 180000, 0.5)
     );
+
+
+    // control pannel buttons 
+
+    new JoystickButton(panel, Constants.kAutoPickup)
+      .whileTrue(m_grabCommand);
+    
+    new JoystickButton(panel, Constants.kBalanceSwitch)
+      .whileTrue(new AutoBalance(
+        m_driveTrain,
+        SmartDashboard.getNumber("AutoBalance P", 0.0113),
+        SmartDashboard.getNumber("AutoBalance I", 0.0000),
+        SmartDashboard.getNumber("AutoBalance D", 0.0025),
+        SmartDashboard.getNumber("AutoBalance Deadband", 0)
+      ));
   }
 
   public Command createAutoNavigationCommand(Pose2d start, List<Translation2d> waypoints, Pose2d end) {
