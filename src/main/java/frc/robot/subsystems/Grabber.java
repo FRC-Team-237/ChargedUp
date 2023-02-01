@@ -33,7 +33,7 @@ public class Grabber extends SubsystemBase {
 
   /** Creates a new Grabber. */
   public Grabber() {
-    m_grabbySolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
+    m_grabbySolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, 0);
     m_pickupSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kPickupSolenoidIndex);
     m_colorSensor = new ColorSensorV3(Port.kOnboard);
     // m_red = new Color(0.475, 0.388, 0.137);

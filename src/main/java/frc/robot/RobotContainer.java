@@ -31,8 +31,7 @@ import frc.robot.commands.AutoGrabbyCommand;
 
 import frc.robot.commands.GoalFinder;
 import frc.robot.commands.LongBall;
-
-
+import frc.robot.commands.TargetFinder;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 
@@ -63,6 +62,9 @@ public class RobotContainer {
   private AutoCommandGroup1 m_autoCommandCenter;
 
   private XboxController m_xboxController;
+  public static Joystick m_flightStick = new Joystick(2);
+  public static JoystickButton m_grabButton = new JoystickButton(m_flightStick, 1);
+  public static JoystickButton m_wheelsButton = new JoystickButton(m_flightStick, 6);
   public static Joystick panel = new Joystick(1);
   public static JoystickButton m_autoSwitchOne = new JoystickButton(panel, Constants.kAutoSwitchOne);
   public static JoystickButton m_autoSwitchTwo = new JoystickButton(panel, Constants.kAutoSwitchTwo);
@@ -91,6 +93,8 @@ public class RobotContainer {
   public RobotContainer() {
  
     m_xboxController = new XboxController(0);
+    m_flightStick.setXChannel(0);
+    m_flightStick.setYChannel(1);
     m_driveTrain = new DriveTrain();
     m_grabber = new Grabber();
     m_grabCommand = new AutoGrabbyCommand(m_grabber);
@@ -119,15 +123,24 @@ public class RobotContainer {
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
     }
 
+    // m_driveTrain.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> 
+    //       m_driveTrain.drive(
+    //         m_xboxController.getLeftX(),
+    //         m_xboxController.getLeftY()
+    //     ), m_driveTrain
+    //   )
+    // );
     m_driveTrain.setDefaultCommand(
       new RunCommand(
-        () -> 
-          m_driveTrain.arcadeDriveVelocity(
-            m_xboxController.getLeftX(),
-            m_xboxController.getLeftY()
-          ), m_driveTrain
-        )
-        );
+        () ->
+          m_driveTrain.drive(
+            m_flightStick.getX(),
+            m_flightStick.getY()
+        ), m_driveTrain
+      )
+    );
   }
   public void resetOdometry()
   {
@@ -144,10 +157,48 @@ public class RobotContainer {
     driversControlPlan();
   }
   private void driversControlPlan(){
+
+    new JoystickButton(m_flightStick, 1)
+    .whileTrue(
+      new RepeatCommand(new InstantCommand(
+        () -> {
+          m_intake.closeIntake();
+        },
+        m_intake
+      )
+    ))
+    .whileFalse(
+      new InstantCommand(
+        () -> {
+          m_intake.openIntake();
+        },
+        m_intake
+      )
+    );
+    new JoystickButton(m_flightStick, 6)
+    .whileTrue(
+      new RepeatCommand(new InstantCommand(
+        () -> {
+          m_intake.startIntake();
+          System.out.println("Starting Intake...");
+        },
+        m_intake
+      )
+    ))
+    .whileFalse(
+      new InstantCommand(
+        () -> {
+          m_intake.stopIntake();
+          System.out.println("Stopping Intake...");
+        },
+        m_intake
+      )
+    );
     
     new JoystickButton(m_xboxController, Button.kX.value)
       .whileTrue(
-        new GoalFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP, true)
+        new TargetFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP)
+        .andThen(new InstantCommand(m_intake::closeIntake, m_intake))
       );
     new JoystickButton(m_xboxController, Button.kA.value)
       .whileTrue(
@@ -164,6 +215,42 @@ public class RobotContainer {
           () -> {
             m_intake.stopIntake();
             System.out.println("Stopping Intake...");
+          },
+          m_intake
+        )
+      );
+      new JoystickButton(m_xboxController, Button.kY.value)
+      .whileTrue(
+        new RepeatCommand(new InstantCommand(
+          () -> {
+            m_intake.startIntakeReverse();
+            System.out.println("Starting Intake...");
+          },
+          m_intake
+        )
+      ))
+      .whileFalse(
+        new InstantCommand(
+          () -> {
+            m_intake.stopIntake();
+            System.out.println("Stopping Intake...");
+          },
+          m_intake
+        )
+      );
+      new JoystickButton(m_xboxController, Button.kRightBumper.value)
+      .whileTrue(
+        new RepeatCommand(new InstantCommand(
+          () -> {
+            m_intake.closeIntake();
+          },
+          m_intake
+        )
+      ))
+      .whileFalse(
+        new InstantCommand(
+          () -> {
+            m_intake.openIntake();
           },
           m_intake
         )
@@ -210,14 +297,14 @@ public class RobotContainer {
     new JoystickButton(panel, Constants.kAutoPickup)
       .whileTrue(m_grabCommand);
     
-    new JoystickButton(panel, Constants.kBalanceSwitch)
-      .whileTrue(new AutoBalance(
-        m_driveTrain,
-        SmartDashboard.getNumber("AutoBalance P", 0.0113),
-        SmartDashboard.getNumber("AutoBalance I", 0.0000),
-        SmartDashboard.getNumber("AutoBalance D", 0.0025),
-        SmartDashboard.getNumber("AutoBalance Deadband", 0)
-      ));
+    // new JoystickButton(panel, Constants.kBalanceSwitch)
+    //   .whileTrue(new AutoBalance(
+    //     m_driveTrain,
+    //     SmartDashboard.getNumber("AutoBalance P", 0.0113),
+    //     SmartDashboard.getNumber("AutoBalance I", 0.0000),
+    //     SmartDashboard.getNumber("AutoBalance D", 0.0025),
+    //     SmartDashboard.getNumber("AutoBalance Deadband", 0)
+    //   ));
   }
 
   public Command createAutoNavigationCommand(Pose2d start, List<Translation2d> waypoints, Pose2d end) {

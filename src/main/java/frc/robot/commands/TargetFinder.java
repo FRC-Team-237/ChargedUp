@@ -15,6 +15,7 @@ public class TargetFinder extends CommandBase {
   private boolean m_hasTarget; 
   private boolean m_atTarget;
   private double m_driveP;
+
   /** Creates a new TargetFinder. */
   public TargetFinder(DriveTrain drive, double driveP) {
     m_dDriveTrain = drive;
@@ -47,6 +48,10 @@ public class TargetFinder extends CommandBase {
       return; 
     }
     m_hasTarget = true; 
+
+    if (tv < -4) {//-5
+      m_atTarget = true;
+    }
 
     double turnValue = tx * Constants.LimeLight.kSteerP; 
     SmartDashboard.putNumber("Tracking Turn Value", turnValue);

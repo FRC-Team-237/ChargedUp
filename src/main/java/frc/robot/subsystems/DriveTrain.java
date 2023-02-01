@@ -94,9 +94,10 @@ public class DriveTrain extends SubsystemBase {
     m_controllerGroupR = new MotorControllerGroup(m_motorFR, m_motorBR);
 
     m_differentialDrive = new DifferentialDrive(m_controllerGroupL, m_controllerGroupR);
-    //m_differentialDrive.setDeadband(0.0);
+    m_differentialDrive.setDeadband(0.05);
 
-    m_gyro = new AHRS(Port.kUSB);
+    // m_gyro = new AHRS(Port.kUSB);
+    m_gyro = new AHRS(Port.kMXP);
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(new Rotation2d(0.0,0.0), 0, 0); 
     m_turbo = false;
@@ -137,7 +138,7 @@ public void resetHeading(){
 }
 
   public double getHeading() {
-    return 0.0;//return -Math.IEEEremainder(m_gyro.getAngle(), 360);
+    return -Math.IEEEremainder(m_gyro.getAngle(), 360);
   }
   public void resetPitch(){
     m_gyro.reset();
@@ -161,7 +162,7 @@ public void resetHeading(){
     SmartDashboard.putNumber("Arcade Drive Z Rotation", zRotation);
     
     if (!m_turbo) {
-      m_differentialDrive.arcadeDrive(xSpeed * 0.60, zRotation * 0.60);
+      m_differentialDrive.curvatureDrive(xSpeed /** 0.60*/, zRotation /** 0.60*/, true);
     } else {
       m_differentialDrive.arcadeDrive(xSpeed, zRotation);
     }
