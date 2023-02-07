@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.ConversionHelper;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoCommandGroup1;
 import frc.robot.commands.AutoDriveCommand;
@@ -96,6 +97,7 @@ public class RobotContainer {
     m_xboxController = new XboxController(0);
     m_flightStick.setXChannel(0);
     m_flightStick.setYChannel(1);
+    m_flightStick.setZChannel(2);
     m_driveTrain = new DriveTrain();
     m_grabber = new Grabber();
     m_grabCommand = new AutoGrabbyCommand(m_grabber);
@@ -136,11 +138,16 @@ public class RobotContainer {
     // );
     m_driveTrain.setDefaultCommand(
       new RunCommand(
-        () ->
+        () -> {
           m_driveTrain.drive(
             m_flightStick.getX(),
             m_flightStick.getY()
-        ), m_driveTrain
+          );
+          m_driveTrain.setScale(
+            ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .2, 1)
+          );
+        }
+        , m_driveTrain
       )
     );
   }
@@ -270,23 +277,6 @@ public class RobotContainer {
         new InstantCommand(
           () -> {
             m_intake.openIntake();
-          },
-          m_intake
-        )
-      );
-    new JoystickButton(m_xboxController, Button.kB.value)
-      .whileTrue(
-        new RepeatCommand(new InstantCommand(
-          () -> {
-            m_driveTrain.enableTurbo();
-          },
-          m_intake
-        )
-      ))
-      .whileFalse(
-        new InstantCommand(
-          () -> {
-            m_driveTrain.disableTurbo();
           },
           m_intake
         )

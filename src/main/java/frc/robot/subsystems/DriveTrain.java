@@ -40,7 +40,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final DifferentialDriveOdometry m_odometry; 
 
-  private boolean m_turbo;
+  private double m_scale;
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
@@ -100,7 +100,7 @@ public class DriveTrain extends SubsystemBase {
     m_gyro = new AHRS(Port.kMXP);
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(new Rotation2d(0.0,0.0), 0, 0); 
-    m_turbo = false;
+    m_scale = 1.0;
   }
 
   public void enableMotorBreak()
@@ -160,12 +160,8 @@ public void resetHeading(){
   public void drive(double xSpeed, double zRotation) {
     SmartDashboard.putNumber("Arcade Drive X Speed", xSpeed);
     SmartDashboard.putNumber("Arcade Drive Z Rotation", zRotation);
-    
-    if (!m_turbo) {
-      m_differentialDrive.curvatureDrive(xSpeed /** 0.60*/, zRotation /** 0.60*/, true);
-    } else {
-      m_differentialDrive.arcadeDrive(xSpeed, zRotation);
-    }
+
+    m_differentialDrive.curvatureDrive(xSpeed * m_scale, zRotation  * m_scale, true);
   }
   public void driveRaw(double zRotation, double xSpeed) {
     m_differentialDrive.arcadeDrive(zRotation,xSpeed, false);
@@ -221,11 +217,8 @@ public void resetHeading(){
     //m_odometry.update(gyroAngle, leftDistance, rightDistance);
   }
 
-  public void enableTurbo() {
-    m_turbo = true;
+  public void setScale(double Scale) {
+    m_scale = Scale;
+  }
   }
 
-  public void disableTurbo() {
-    m_turbo = false;
-  }
-}
