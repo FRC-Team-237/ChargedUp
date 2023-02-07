@@ -38,7 +38,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Grabber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Leds;
-
+import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.TalonRamseteControllerAbstraction;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -84,6 +84,7 @@ public class RobotContainer {
   public Grabber m_grabber;
   public AutoGrabbyCommand m_grabCommand;
   private Intake m_intake;
+  private Stinger m_stinger;
 
 
   private boolean m_isRedAlliance;
@@ -99,6 +100,7 @@ public class RobotContainer {
     m_grabber = new Grabber();
     m_grabCommand = new AutoGrabbyCommand(m_grabber);
     m_intake = new Intake(Constants.kHangerOneSpark, Constants.kHangerTwoSpark);
+    m_stinger = new Stinger();
    
 
     
@@ -157,6 +159,23 @@ public class RobotContainer {
     driversControlPlan();
   }
   private void driversControlPlan(){
+    new JoystickButton(m_flightStick, 10)
+    .whileTrue(
+      new RepeatCommand(new InstantCommand(
+        () -> {
+          m_stinger.raiseStinger();
+        },
+        m_stinger
+      )
+    ))
+    .whileFalse(
+      new InstantCommand(
+        () -> {
+          m_stinger.lowerStinger();
+        },
+        m_stinger
+      )
+    );
 
     new JoystickButton(m_flightStick, 1)
     .whileTrue(
