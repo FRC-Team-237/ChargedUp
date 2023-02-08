@@ -15,16 +15,16 @@ import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
 
-  private CANSparkMax m_intakeMotor1;
-  private CANSparkMax m_intakeMotor2;
+  // private CANSparkMax m_intakeMotor1;
+  // private CANSparkMax m_intakeMotor2;
   private Solenoid m_intakeSolenoid;
 
   /** Creates a new Intake. */
   public Intake(int motorCANId1, int motorCANId2) {
-    m_intakeMotor1 = new CANSparkMax(motorCANId1, MotorType.kBrushless);
-    m_intakeMotor1.setIdleMode(IdleMode.kCoast);
-    m_intakeMotor2 = new CANSparkMax(motorCANId2, MotorType.kBrushless);
-    m_intakeMotor2.setIdleMode(IdleMode.kCoast);
+    // m_intakeMotor1 = new CANSparkMax(motorCANId1, MotorType.kBrushless);
+    // m_intakeMotor1.setIdleMode(IdleMode.kCoast);
+    // m_intakeMotor2 = new CANSparkMax(motorCANId2, MotorType.kBrushless);
+    // m_intakeMotor2.setIdleMode(IdleMode.kCoast);
     m_intakeSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
   }
 
@@ -34,13 +34,13 @@ public class Intake extends SubsystemBase {
   }
 
   public void startIntake() {
-    m_intakeMotor1.set(0.5);
-    m_intakeMotor2.set(-0.5);
+    // m_intakeMotor1.set(0.5);
+    // m_intakeMotor2.set(-0.5);
   }
 
   public void startIntakeReverse() {
-    m_intakeMotor1.set(-0.5);
-    m_intakeMotor2.set(0.5);
+    // m_intakeMotor1.set(-0.5);
+    // m_intakeMotor2.set(0.5);
   }
 
   public void closeIntake() {
@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void stopIntake() {
-    m_intakeMotor1.set(0.0);
-    m_intakeMotor2.set(0.0);
+    // m_intakeMotor1.set(0.0);
+    // m_intakeMotor2.set(0.0);
   }
 }
