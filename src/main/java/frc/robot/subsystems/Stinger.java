@@ -23,10 +23,10 @@ public class Stinger extends SubsystemBase {
   }
 
   public void lowerStinger() {
-    m_stingerSolenoid.set(true);
+    m_stingerSolenoid.set(false);
   }
 
   public void raiseStinger() {
-    m_stingerSolenoid.set(false);
+    m_stingerSolenoid.set(true);
   }
 }

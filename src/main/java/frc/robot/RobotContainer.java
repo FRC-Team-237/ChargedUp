@@ -170,7 +170,7 @@ public class RobotContainer {
     .whileTrue(
       new RepeatCommand(new InstantCommand(
         () -> {
-          m_stinger.raiseStinger();
+          m_stinger.lowerStinger();
         },
         m_stinger
       )
@@ -178,7 +178,7 @@ public class RobotContainer {
     .whileFalse(
       new InstantCommand(
         () -> {
-          m_stinger.lowerStinger();
+          m_stinger.raiseStinger();
         },
         m_stinger
       )

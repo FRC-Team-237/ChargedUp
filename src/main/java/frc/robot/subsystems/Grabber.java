@@ -23,7 +23,7 @@ public class Grabber extends SubsystemBase {
   private ColorSensorV3 m_colorSensor;
   private ColorMatch m_colorMatcher = new ColorMatch();
   private Solenoid m_grabbySolenoid;
-  private Solenoid m_pickupSolenoid;
+  // private Solenoid m_pickupSolenoid;
   private DigitalInput m_grabberSensor;
   private DigitalInput m_grabberRaisedSensor;
   private boolean m_isRedAlliance;
@@ -34,7 +34,7 @@ public class Grabber extends SubsystemBase {
   /** Creates a new Grabber. */
   public Grabber() {
     m_grabbySolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, 0);
-    m_pickupSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kPickupSolenoidIndex);
+    // m_pickupSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kPickupSolenoidIndex);
     m_colorSensor = new ColorSensorV3(Port.kOnboard);
     // m_red = new Color(0.475, 0.388, 0.137);
     m_red = new Color(0.334, 0.477, 0.189);
@@ -98,7 +98,7 @@ public class Grabber extends SubsystemBase {
   
   /** When true, this lowers the grabber */
   public void lowerGrabber(boolean raise){
-    m_pickupSolenoid.set(raise);
+    // m_pickupSolenoid.set(raise);
   }
 
   public boolean ballAtGrabber(){

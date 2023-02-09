@@ -33,7 +33,7 @@ public final class Constants {
     public static final double kDriveReduction = 0.75;
     
     public static final int kGrabbySolenoidIndex = 7;
-    public static final int kStingerSolenoid = 5;
+    public static final int kStingerSolenoid = 6;
     // public static final int kPickupSolenoidIndex = 5;
     public static final int kSenseyGrabby = 0;
     public static final int kSenseyShooty = 1;
