@@ -11,10 +11,12 @@ import frc.robot.Constants;
 
 public class Stinger extends SubsystemBase {
   private Solenoid m_stingerSolenoid;
+  private boolean m_lowered;
 
   /** Creates a new Stinger. */
   public Stinger() {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
+    m_lowered = false;
   }
 
   @Override
@@ -24,9 +26,16 @@ public class Stinger extends SubsystemBase {
 
   public void lowerStinger() {
     m_stingerSolenoid.set(false);
+    m_lowered = true;
   }
 
   public void raiseStinger() {
     m_stingerSolenoid.set(true);
+    m_lowered = false;
+  }
+
+  public void toggleStinger() {
+    m_lowered = !m_lowered;
+    m_stingerSolenoid.set(m_lowered);
   }
 }

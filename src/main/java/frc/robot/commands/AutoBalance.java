@@ -19,7 +19,7 @@ public class AutoBalance extends PIDCommand {
       new PIDController(p, i, d),
       drive::getPitch,
       0.0,
-      output -> {drive.driveRaw(0, -output);}
+      output -> {drive.driveRaw(0, output);}
     );
 
     m_drive = drive;

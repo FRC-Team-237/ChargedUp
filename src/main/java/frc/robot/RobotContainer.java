@@ -168,17 +168,9 @@ public class RobotContainer {
   private void driversControlPlan(){
     new JoystickButton(m_flightStick, 10)
     .whileTrue(
-      new RepeatCommand(new InstantCommand(
-        () -> {
-          m_stinger.lowerStinger();
-        },
-        m_stinger
-      )
-    ))
-    .whileFalse(
       new InstantCommand(
         () -> {
-          m_stinger.raiseStinger();
+          m_stinger.toggleStinger();
         },
         m_stinger
       )
@@ -306,14 +298,14 @@ public class RobotContainer {
     new JoystickButton(panel, Constants.kAutoPickup)
       .whileTrue(m_grabCommand);
     
-    // new JoystickButton(panel, Constants.kBalanceSwitch)
-    //   .whileTrue(new AutoBalance(
-    //     m_driveTrain,
-    //     SmartDashboard.getNumber("AutoBalance P", 0.0113),
-    //     SmartDashboard.getNumber("AutoBalance I", 0.0000),
-    //     SmartDashboard.getNumber("AutoBalance D", 0.0025),
-    //     SmartDashboard.getNumber("AutoBalance Deadband", 0)
-    //   ));
+    new JoystickButton(m_flightStick, 11)
+      .whileTrue(new AutoBalance(
+        m_driveTrain,
+        SmartDashboard.getNumber("AutoBalance P", 0.0113),
+        SmartDashboard.getNumber("AutoBalance I", 0.0000),
+        SmartDashboard.getNumber("AutoBalance D", 0.0025),
+        SmartDashboard.getNumber("AutoBalance Deadband", 0)
+      ));
   }
 
   public Command createAutoNavigationCommand(Pose2d start, List<Translation2d> waypoints, Pose2d end) {
