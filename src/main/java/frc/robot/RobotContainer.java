@@ -175,6 +175,15 @@ public class RobotContainer {
         m_stinger
       )
     );
+    new JoystickButton(m_flightStick, 9)
+    .whileTrue(
+      new InstantCommand(
+        () -> {
+          m_intake.raisevlow();
+        },
+        m_intake
+      )
+    );
 
     new JoystickButton(m_flightStick, 1)
     .whileTrue(
