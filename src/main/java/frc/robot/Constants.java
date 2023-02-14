@@ -24,8 +24,8 @@ public final class Constants {
     public static final int kPCM = 52;
     public static final int kShooterSpark1 = 7;
     // public static final int kShooterSpark2 = 10;
-    public static final int kHangerOneSpark = 8;
-    public static final int kHangerTwoSpark = 10;
+    public static final int kExtendStingerSpark = 8;
+    public static final int kRaiseStingerSpark = 9;
 
     /** The upper limit at which the drive will stop using kDriveReduction */
     public static final double kDriveThreshold = 0.9;
@@ -33,9 +33,8 @@ public final class Constants {
     public static final double kDriveReduction = 0.75;
     
     public static final int kGrabbySolenoidIndex = 7;
-    public static final int kdroppySolenoidIndex = 5;
     public static final int kStingerSolenoid = 6;
-    // public static final int kPickupSolenoidIndex = 5;
+    public static final int kdroppySolenoidIndex = 5;
     public static final int kSenseyGrabby = 0;
     public static final int kSenseyShooty = 1;
     public static final int kGrabberRaised = 5;

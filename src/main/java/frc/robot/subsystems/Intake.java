@@ -24,7 +24,7 @@ public class Intake extends SubsystemBase {
 
 
   /** Creates a new Intake. */
-  public Intake(int motorCANId1, int motorCANId2) {
+  public Intake() {
     // m_intakeMotor1 = new CANSparkMax(motorCANId1, MotorType.kBrushless);
     // m_intakeMotor1.setIdleMode(IdleMode.kCoast);
     // m_intakeMotor2 = new CANSparkMax(motorCANId2, MotorType.kBrushless);
@@ -37,16 +37,6 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-  }
-
-  public void startIntake() {
-    // m_intakeMotor1.set(0.5);
-    // m_intakeMotor2.set(-0.5);
-  }
-
-  public void startIntakeReverse() {
-    // m_intakeMotor1.set(-0.5);
-    // m_intakeMotor2.set(0.5);
   }
 
   public void closeIntake() {

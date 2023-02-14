@@ -101,7 +101,7 @@ public class RobotContainer {
     m_driveTrain = new DriveTrain();
     m_grabber = new Grabber();
     m_grabCommand = new AutoGrabbyCommand(m_grabber);
-    m_intake = new Intake(Constants.kHangerOneSpark, Constants.kHangerTwoSpark);
+    m_intake = new Intake();
     m_stinger = new Stinger();
    
 
