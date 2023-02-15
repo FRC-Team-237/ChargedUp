@@ -166,7 +166,7 @@ public class RobotContainer {
     driversControlPlan();
   }
   private void driversControlPlan(){
-    new JoystickButton(m_flightStick, 10)
+    new JoystickButton(m_flightStick, 8)
     .whileTrue(
       new InstantCommand(
         () -> {
@@ -202,23 +202,60 @@ public class RobotContainer {
         m_intake
       )
     );
+    
     new JoystickButton(m_flightStick, 6)
-    .whileTrue(
-      new RepeatCommand(new InstantCommand(
+      .whileTrue(new RepeatCommand(new InstantCommand(
         () -> {
-          m_intake.startIntake();
-          System.out.println("Starting Intake...");
+          m_stinger.lowerElbow();
         },
-        m_intake
+        m_stinger
+      )))
+      .whileFalse(new InstantCommand(
+        () -> {
+          m_stinger.stopElbow();
+        }
       )
-    ))
-    .whileFalse(
-      new InstantCommand(
+    );
+    
+    new JoystickButton(m_flightStick, 7)
+      .whileTrue(new RepeatCommand(new InstantCommand(
         () -> {
-          m_intake.stopIntake();
-          System.out.println("Stopping Intake...");
+          m_stinger.raiseElbow();
         },
-        m_intake
+        m_stinger
+      )))
+      .whileFalse(new InstantCommand(
+        () -> {
+          m_stinger.stopElbow();
+        }
+      )
+    );
+
+    new JoystickButton(m_flightStick, 10)
+      .whileTrue(new RepeatCommand(new InstantCommand(
+        () -> {
+          m_stinger.retractStinger();
+        },
+        m_stinger
+      )))
+      .whileFalse(new InstantCommand(
+        () -> {
+          m_stinger.stopStinger();
+        }
+      )
+    );
+    
+    new JoystickButton(m_flightStick, 11)
+      .whileTrue(new RepeatCommand(new InstantCommand(
+        () -> {
+          m_stinger.extendStinger();
+        },
+        m_stinger
+      )))
+      .whileFalse(new InstantCommand(
+        () -> {
+          m_stinger.stopStinger();
+        }
       )
     );
     
@@ -226,44 +263,6 @@ public class RobotContainer {
       .whileTrue(
         new TargetFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP)
         .andThen(new InstantCommand(m_intake::closeIntake, m_intake))
-      );
-    new JoystickButton(m_xboxController, Button.kA.value)
-      .whileTrue(
-        new RepeatCommand(new InstantCommand(
-          () -> {
-            m_intake.startIntake();
-            System.out.println("Starting Intake...");
-          },
-          m_intake
-        )
-      ))
-      .whileFalse(
-        new InstantCommand(
-          () -> {
-            m_intake.stopIntake();
-            System.out.println("Stopping Intake...");
-          },
-          m_intake
-        )
-      );
-      new JoystickButton(m_xboxController, Button.kY.value)
-      .whileTrue(
-        new RepeatCommand(new InstantCommand(
-          () -> {
-            m_intake.startIntakeReverse();
-            System.out.println("Starting Intake...");
-          },
-          m_intake
-        )
-      ))
-      .whileFalse(
-        new InstantCommand(
-          () -> {
-            m_intake.stopIntake();
-            System.out.println("Stopping Intake...");
-          },
-          m_intake
-        )
       );
       new JoystickButton(m_xboxController, Button.kRightBumper.value)
       .whileTrue(
@@ -307,14 +306,14 @@ public class RobotContainer {
     new JoystickButton(panel, Constants.kAutoPickup)
       .whileTrue(m_grabCommand);
     
-    new JoystickButton(m_flightStick, 11)
-      .whileTrue(new AutoBalance(
-        m_driveTrain,
-        SmartDashboard.getNumber("AutoBalance P", 0.0113),
-        SmartDashboard.getNumber("AutoBalance I", 0.0000),
-        SmartDashboard.getNumber("AutoBalance D", 0.0025),
-        SmartDashboard.getNumber("AutoBalance Deadband", 0)
-      ));
+    // new JoystickButton(m_flightStick, 11)
+    //   .whileTrue(new AutoBalance(
+    //     m_driveTrain,
+    //     SmartDashboard.getNumber("AutoBalance P", 0.0113),
+    //     SmartDashboard.getNumber("AutoBalance I", 0.0000),
+    //     SmartDashboard.getNumber("AutoBalance D", 0.0025),
+    //     SmartDashboard.getNumber("AutoBalance Deadband", 0)
+    //   ));
   }
 
   public Command createAutoNavigationCommand(Pose2d start, List<Translation2d> waypoints, Pose2d end) {

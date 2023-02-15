@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -23,7 +24,9 @@ public class Stinger extends SubsystemBase {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
     m_lowered = false;
     m_extendSpark=new CANSparkMax(Constants.kExtendStingerSpark,MotorType.kBrushless);
+    m_extendSpark.setIdleMode(IdleMode.kBrake);
     m_raiseSpark=new CANSparkMax(Constants.kRaiseStingerSpark,MotorType.kBrushless);
+    m_raiseSpark.setIdleMode(IdleMode.kBrake);
   }
 
   @Override
@@ -31,19 +34,19 @@ public class Stinger extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 public void raiseElbow(){
-  m_raiseSpark.set(.25);
+  m_raiseSpark.set(-.6);
 }
 public void lowerElbow(){
-  m_raiseSpark.set(-.25);
+  m_raiseSpark.set(.6);
 }
 public void stopElbow(){
   m_raiseSpark.set(0);
 }
 public void extendStinger(){
-  m_extendSpark.set(.25);
+  m_extendSpark.set(.7);
 }
 public void retractStinger(){
-  m_extendSpark.set(-.25);
+  m_extendSpark.set(-.7);
 }
 public void stopStinger(){
   m_extendSpark.set(0);
