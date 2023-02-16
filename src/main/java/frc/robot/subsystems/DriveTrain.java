@@ -213,6 +213,7 @@ public void resetHeading(){
     double rightDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int)m_motorFR.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true);
     getEncPos();
     SmartDashboard.putNumber("current pitch", getPitch());
+    SmartDashboard.putString("Relative Drive Speed", String.format("%.0f%%", m_scale * 100));
 
     // Update the pose
     //m_odometry.update(gyroAngle, leftDistance, rightDistance);

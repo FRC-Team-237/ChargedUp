@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -27,30 +28,40 @@ public class Stinger extends SubsystemBase {
     m_extendSpark.setIdleMode(IdleMode.kBrake);
     m_raiseSpark=new CANSparkMax(Constants.kRaiseStingerSpark,MotorType.kBrushless);
     m_raiseSpark.setIdleMode(IdleMode.kBrake);
+
+    SmartDashboard.putNumber("Elbow Speed", 0.25);
+    SmartDashboard.putNumber("Extend Speed", 0.25);
   }
+
+  private double elbowSpeed = 0.0;
+  private double extendSpeed = 0.0;
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    elbowSpeed = SmartDashboard.getNumber("Elbow Speed", 0.25);
+    extendSpeed = SmartDashboard.getNumber("Extend Speed", 0.25);
+    SmartDashboard.putNumber("Elbow Position", m_raiseSpark.getEncoder().getPosition());
+    SmartDashboard.putNumber("Extend Position", m_extendSpark.getEncoder().getPosition());
   }
-public void raiseElbow(){
-  m_raiseSpark.set(-.6);
-}
-public void lowerElbow(){
-  m_raiseSpark.set(.6);
-}
-public void stopElbow(){
-  m_raiseSpark.set(0);
-}
-public void extendStinger(){
-  m_extendSpark.set(.7);
-}
-public void retractStinger(){
-  m_extendSpark.set(-.7);
-}
-public void stopStinger(){
-  m_extendSpark.set(0);
-}
+  public void raiseElbow(){
+    m_raiseSpark.set(-elbowSpeed);
+  }
+  public void lowerElbow(){
+    m_raiseSpark.set(elbowSpeed);
+  }
+  public void stopElbow(){
+    m_raiseSpark.set(0);
+  }
+  public void extendStinger(){
+    m_extendSpark.set(extendSpeed);
+  }
+  public void retractStinger(){
+    m_extendSpark.set(-extendSpeed);
+  }
+  public void stopStinger(){
+    m_extendSpark.set(0);
+  }
   public void lowerStinger() {
     m_stingerSolenoid.set(false);
     m_lowered = true;
