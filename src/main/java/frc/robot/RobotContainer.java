@@ -36,7 +36,7 @@ import frc.robot.commands.TargetFinder;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 
-import frc.robot.subsystems.Grabber;
+// import frc.robot.subsystems.Grabber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Stinger;
@@ -82,7 +82,7 @@ public class RobotContainer {
   public static JoystickButton m_eject = new JoystickButton(panel, Constants.kEject);
 
   private DriveTrain m_driveTrain;
-  public Grabber m_grabber;
+  // public Grabber m_grabber;
   public AutoGrabbyCommand m_grabCommand;
   private Intake m_intake;
   private Stinger m_stinger;
@@ -99,8 +99,8 @@ public class RobotContainer {
     m_flightStick.setYChannel(1);
     m_flightStick.setZChannel(2);
     m_driveTrain = new DriveTrain();
-    m_grabber = new Grabber();
-    m_grabCommand = new AutoGrabbyCommand(m_grabber);
+    // m_grabber = new Grabber();
+    // m_grabCommand = new AutoGrabbyCommand(m_grabber);
     m_intake = new Intake();
     m_stinger = new Stinger();
    
@@ -110,9 +110,9 @@ public class RobotContainer {
   
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
 
-    m_autoCommandFarLeft = new AutoCommandGroup1(m_grabber, m_driveTrain, 170, -25000);
-    m_autoCommandCloseLeft = new AutoCommandGroup1(m_grabber, m_driveTrain, 165, -40000);
-    m_autoCommandCloseRight = new AutoCommandGroup1(m_grabber, m_driveTrain, -170, -15000);
+    // m_autoCommandFarLeft = new AutoCommandGroup1(m_grabber, m_driveTrain, 170, -25000);
+    // m_autoCommandCloseLeft = new AutoCommandGroup1(m_grabber, m_driveTrain, 165, -40000);
+    // m_autoCommandCloseRight = new AutoCommandGroup1(m_grabber, m_driveTrain, -170, -15000);
     // m_autoCommandCenter = new AutoCommandGroup1(m_grabber, m_shooter, m_driveTrain, 180, -50000); // Not done
 
     Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
@@ -350,29 +350,8 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    // return m_autoCommand;
-    if (panel.getRawButton(Constants.kAutoSwitchOne)) {
-      if (panel.getRawButton(Constants.kAutoBallSwitch)) {
-        return m_autoCommandFarLeft.andThen(new LongBall(m_driveTrain, 80, -35000, 100000, m_grabber)); // Turn right
-      }
-      return m_autoCommandFarLeft;
-    } else if (panel.getRawButton(Constants.kAutoSwitchTwo)) {
-      if (panel.getRawButton(Constants.kAutoBallSwitch)) {
-        return m_autoCommandCloseLeft.andThen(new LongBall(m_driveTrain, -10, 0, 85000, m_grabber));// Turn any way
-      }
-      return m_autoCommandCloseLeft;
-    } else if (panel.getRawButton(Constants.kAutoSwitchThree)) {
-      if (panel.getRawButton(Constants.kAutoBallSwitch)) {
-        return m_autoCommandCloseRight.andThen(new LongBall(m_driveTrain, -80, -35000, 100000, m_grabber)); // Turn left
-      }
-      return m_autoCommandCloseRight;
-    } else if (panel.getRawButton(Constants.kAautoSwitchFour)) {
-      return m_autoCommandCenter;
-    } else {
-      if (panel.getRawButton(Constants.kAutoBallSwitch)) {
-        return m_autoCommandFarLeft.andThen(new LongBall(m_driveTrain, 80, -35000, 70000, m_grabber));
-      }
-      return m_autoCommandFarLeft;
-    }
+     return new InstantCommand();
   }
 }
+
+
