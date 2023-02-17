@@ -24,8 +24,7 @@ public class ResetOdometryCommand extends CommandBase {
   @Override
   public void initialize() {
     m_driveTrain.resetEncoders();
-    m_driveTrain.resetHeading();
-    m_driveTrain.resetPitch();
+    m_driveTrain.resetGyro();
     m_finished = true;
   }
 

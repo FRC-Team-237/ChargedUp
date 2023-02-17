@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
@@ -16,31 +19,30 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.ConversionHelper;
 import frc.robot.Constants;
 
-
-
 public class DriveTrain extends SubsystemBase {
-
   private final WPI_TalonFX m_motorFR;
   private final WPI_TalonFX m_motorFL;
   private final WPI_TalonFX m_motorBR;
   private final WPI_TalonFX m_motorBL;
+  private List<WPI_TalonFX> m_motors;
 
   private final MotorControllerGroup m_controllerGroupL;
   private final MotorControllerGroup m_controllerGroupR;
 
   private final DifferentialDrive m_differentialDrive;
+  private final DifferentialDriveOdometry m_odometry;
 
   public AHRS m_gyro;
 
-  private final DifferentialDriveOdometry m_odometry; 
+  private double m_speedScale;
 
-  private double m_scale;
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
@@ -49,46 +51,21 @@ public class DriveTrain extends SubsystemBase {
     m_motorFR = new WPI_TalonFX(Constants.kMotorFR);
     m_motorBR = new WPI_TalonFX(Constants.kMotorBR);
 
+    m_motors = List.of(m_motorFL, m_motorFR, m_motorBR, m_motorBL);
+
     // define closed loop for motors 
-    m_motorFR.config_kD(0, Constants.DTConsts.kD, Constants.DTConsts.kTimeOut);
-    m_motorFR.config_kF(0, Constants.DTConsts.kFF, Constants.DTConsts.kTimeOut); 
-    m_motorFR.config_kI(0, Constants.DTConsts.kI, Constants.DTConsts.kTimeOut); 
-    m_motorFR.config_kP(0, Constants.DTConsts.kP, Constants.DTConsts.kTimeOut); 
-
-    m_motorBR.config_kD(0, Constants.DTConsts.kD, Constants.DTConsts.kTimeOut);
-    m_motorBR.config_kF(0, Constants.DTConsts.kFF, Constants.DTConsts.kTimeOut); 
-    m_motorBR.config_kI(0, Constants.DTConsts.kI, Constants.DTConsts.kTimeOut); 
-    m_motorBR.config_kP(0, Constants.DTConsts.kP, Constants.DTConsts.kTimeOut); 
-    
-    m_motorFL.config_kD(0, Constants.DTConsts.kD, Constants.DTConsts.kTimeOut);
-    m_motorFL.config_kF(0, Constants.DTConsts.kFF, Constants.DTConsts.kTimeOut); 
-    m_motorFL.config_kI(0, Constants.DTConsts.kI, Constants.DTConsts.kTimeOut); 
-    m_motorFL.config_kP(0, Constants.DTConsts.kP, Constants.DTConsts.kTimeOut); 
-
-    m_motorBL.config_kD(0, Constants.DTConsts.kD, Constants.DTConsts.kTimeOut);
-    m_motorBL.config_kF(0, Constants.DTConsts.kFF, Constants.DTConsts.kTimeOut); 
-    m_motorBL.config_kI(0, Constants.DTConsts.kI, Constants.DTConsts.kTimeOut); 
-    m_motorBL.config_kP(0, Constants.DTConsts.kP, Constants.DTConsts.kTimeOut); 
-
-    m_motorFL.configOpenloopRamp(Constants.DTConsts.kRampRate);
-    m_motorFR.configOpenloopRamp(Constants.DTConsts.kRampRate);
-    m_motorBR.configOpenloopRamp(Constants.DTConsts.kRampRate);
-    m_motorBL.configOpenloopRamp(Constants.DTConsts.kRampRate);
-    
-    m_motorFR.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut); 
-    m_motorFL.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut); 
-    m_motorBR.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut); 
-    m_motorBL.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut); 
-
-    m_motorFR.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut); 
-    m_motorFL.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut); 
-    m_motorBR.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut); 
-    m_motorBL.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut); 
+    m_motors.forEach(motor -> {
+      motor.config_kD(0, Constants.DTConsts.kD, Constants.DTConsts.kTimeOut);
+      motor.config_kF(0, Constants.DTConsts.kFF, Constants.DTConsts.kTimeOut); 
+      motor.config_kI(0, Constants.DTConsts.kI, Constants.DTConsts.kTimeOut); 
+      motor.config_kP(0, Constants.DTConsts.kP, Constants.DTConsts.kTimeOut);
+      motor.configOpenloopRamp(Constants.DTConsts.kRampRate);
+      motor.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut);
+      motor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut);
+    });
 
     m_motorBL.follow(m_motorFL);
     m_motorBR.follow(m_motorFR);
-
-    
 
     m_controllerGroupL = new MotorControllerGroup(m_motorFL, m_motorBL);
     m_controllerGroupR = new MotorControllerGroup(m_motorFR, m_motorBR);
@@ -96,131 +73,128 @@ public class DriveTrain extends SubsystemBase {
     m_differentialDrive = new DifferentialDrive(m_controllerGroupL, m_controllerGroupR);
     m_differentialDrive.setDeadband(0.05);
 
-    // m_gyro = new AHRS(Port.kUSB);
     m_gyro = new AHRS(Port.kMXP);
     resetEncoders();
-    m_odometry = new DifferentialDriveOdometry(new Rotation2d(0.0,0.0), 0, 0); 
-    m_scale = 1.0;
+    m_odometry = new DifferentialDriveOdometry(
+      new Rotation2d(0.0,0.0),
+      0, 0); 
+    m_speedScale = 1.0;
   }
 
-  public void enableMotorBreak()
-  {
-    m_motorFR.setNeutralMode(NeutralMode.Brake);
-    m_motorFL.setNeutralMode(NeutralMode.Brake);
-    m_motorBR.setNeutralMode(NeutralMode.Brake);
-    m_motorBL.setNeutralMode(NeutralMode.Brake);
+  public void enableMotorBreak() {
+    m_motors.forEach(motor -> {
+      motor.setNeutralMode(NeutralMode.Brake);
+    });
   }
 
-  public void disableMotorBreak()
-  {
-    m_motorFR.setNeutralMode(NeutralMode.Coast);
-    m_motorFL.setNeutralMode(NeutralMode.Coast);
-    m_motorBR.setNeutralMode(NeutralMode.Coast);
-    m_motorBL.setNeutralMode(NeutralMode.Coast);
+  public void disableMotorBreak() {
+    m_motors.forEach(motor -> {
+      motor.setNeutralMode(NeutralMode.Coast);
+    });
   }
 
   public double getEncPos() {
-    double encFL = m_motorFL.getSelectedSensorPosition(0);
+    double encFL =  m_motorFL.getSelectedSensorPosition(0);
     double encFR = -m_motorFR.getSelectedSensorPosition(0);
-    double encBL = m_motorBL.getSelectedSensorPosition(0);
+    double encBL =  m_motorBL.getSelectedSensorPosition(0);
     double encBR = -m_motorBR.getSelectedSensorPosition(0);
     SmartDashboard.putNumber("Front Left Enc", encFL);
     SmartDashboard.putNumber("Front Right Enc", encFR);
     SmartDashboard.putNumber("Back Left Enc", encBL);
     SmartDashboard.putNumber("Back Right Enc", encBR);
-    
+
     double position = (encFL + encFR + encBL + encBR) / 4;
     return position;
   }
 
-public void resetHeading(){
-  //m_gyro.reset();
-}
-
   public double getHeading() {
     return -Math.IEEEremainder(m_gyro.getAngle(), 360);
   }
-  public void resetPitch(){
+  public void resetGyro() {
     m_gyro.reset();
   }
 
-  public double getPitch(){
+  public double getPitch() {
     return Math.IEEEremainder(m_gyro.getPitch(), 360);
   }
-  public double getTurnRate(){
-    return 0.0;//m_gyro.getRate(); 
+
+  public double getTurnRate() {
+    return 0.0; //m_gyro.getRate(); 
   }
+
   public void resetEncoders() {
-    m_motorFL.setSelectedSensorPosition(0);
-    m_motorFR.setSelectedSensorPosition(0);
-    m_motorBL.setSelectedSensorPosition(0);
-    m_motorBR.setSelectedSensorPosition(0);
+    m_motors.forEach(motor -> {
+      motor.setSelectedSensorPosition(0);
+    });
   }
 
   public void drive(double xSpeed, double zRotation) {
     SmartDashboard.putNumber("Arcade Drive X Speed", xSpeed);
     SmartDashboard.putNumber("Arcade Drive Z Rotation", zRotation);
 
-    m_differentialDrive.curvatureDrive(xSpeed * m_scale, zRotation  * m_scale, true);
+    m_differentialDrive.curvatureDrive(
+      xSpeed * m_speedScale,
+      zRotation  * m_speedScale,
+      true);
   }
+
   public void driveRaw(double zRotation, double xSpeed) {
     m_differentialDrive.arcadeDrive(zRotation,xSpeed, false);
   }
 
-  public void tankDriveVolts(double left, double right)
-  {
+  public void tankDriveVolts(double left, double right) {
     this.m_motorFR.set(ControlMode.Current, right);
     this.m_motorFL.set(ControlMode.Current, left);
   }
-  public void driveVelocity(double left, double right){
-    double leftNativeVel = ConversionHelper.convertWPILibTrajectoryUnitsToTalonSRXNativeUnits(left, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
-    double rightNativeVel = ConversionHelper.convertWPILibTrajectoryUnitsToTalonSRXNativeUnits(right, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
-    
+
+  public void driveVelocity(double left, double right) {
+    double leftNativeVel = ConversionHelper.trajectoryToSRXUnits(left, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
+    double rightNativeVel = ConversionHelper.trajectoryToSRXUnits(right, Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution); 
+
     this.m_motorFR.set(ControlMode.Velocity, rightNativeVel);
     this.m_motorFL.set(ControlMode.Velocity, leftNativeVel);
     m_differentialDrive.feed();
     SmartDashboard.putNumber("Left Target Vel", leftNativeVel);
-    SmartDashboard.putNumber("Left Target Vs Actual", leftNativeVel-this.m_motorFL.getSelectedSensorVelocity()); 
+    SmartDashboard.putNumber("Left Target Vs Actual", leftNativeVel - this.m_motorFL.getSelectedSensorVelocity()); 
   }
-  public void arcadeDriveVelocity(double xSpeed, double zRotation){
-    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
-    double leftVel = ConversionHelper.mapRange(speeds.left, -1.0, 1.0, ConversionHelper.convertFeetToMeters(-13.5), ConversionHelper.convertFeetToMeters(13.5));
-    double rightVel = ConversionHelper.mapRange(speeds.right, -1.0, 1.0, ConversionHelper.convertFeetToMeters(-13.5), ConversionHelper.convertFeetToMeters(13.5));
-    driveVelocity(leftVel, rightVel); 
-    
+
+  public void arcadeDriveVelocity(double xSpeed, double zRotation) {
+    WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    double leftVel = ConversionHelper.mapRange(speeds.left, -1.0, 1.0, ConversionHelper.toMeters(-13.5), ConversionHelper.toMeters(13.5));
+    double rightVel = ConversionHelper.mapRange(speeds.right, -1.0, 1.0, ConversionHelper.toMeters(-13.5), ConversionHelper.toMeters(13.5));
+    driveVelocity(leftVel, rightVel);
   }
-  public DifferentialDriveWheelSpeeds getWheelSpeeds(){
+
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(
-      ConversionHelper.convertTalonNativeToWPITrajectoryUnits(this.m_motorFL.getSelectedSensorVelocity(), Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution),
-      ConversionHelper.convertTalonNativeToWPITrajectoryUnits(this.m_motorFR.getSelectedSensorVelocity(), Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution)
-      );
+        ConversionHelper.SRXToTrajectoryUnits(this.m_motorFL.getSelectedSensorVelocity(), Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution),
+        ConversionHelper.SRXToTrajectoryUnits(this.m_motorFR.getSelectedSensorVelocity(), Constants.DTConsts.kWheelDiameter, true, Constants.DTConsts.kTicksPerRevolution));
   }
 
-  public void resetOdometry(Pose2d pose){
+  public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    m_odometry.resetPosition( Rotation2d.fromDegrees(getHeading()),0.0,0, pose );
+    m_odometry.resetPosition(Rotation2d.fromDegrees(getHeading()), 0.0, 0, pose);
   }
 
-  public Pose2d getPose(){
+  public Pose2d getPose() {
     return m_odometry.getPoseMeters(); 
   }
 
   @Override
   public void periodic() {
     //var gyroAngle = Rotation2d.fromDegrees(-m_gyro.getAngle());
-    SmartDashboard.putNumber("current heading", getHeading());
-    double leftDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int)m_motorFL.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true); 
-    double rightDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int)m_motorFR.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true);
+    SmartDashboard.putNumber("Heading", getHeading());
+    double leftDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int) m_motorFL.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true); 
+    double rightDistance = ConversionHelper.convertTalonEncoderTicksToMeters((int) m_motorFR.getSelectedSensorPosition(), Constants.DTConsts.kWheelDiameter, Constants.DTConsts.kTicksPerRevolution, true);
     getEncPos();
-    SmartDashboard.putNumber("current pitch", getPitch());
-    SmartDashboard.putString("Relative Drive Speed", String.format("%.0f%%", m_scale * 100));
+    SmartDashboard.putNumber("Pitch", getPitch());
+    SmartDashboard.putNumber("Drive Speed", m_speedScale);
 
     // Update the pose
     //m_odometry.update(gyroAngle, leftDistance, rightDistance);
   }
 
   public void setScale(double Scale) {
-    m_scale = Scale;
+    m_speedScale = Scale;
   }
-  }
-
+}

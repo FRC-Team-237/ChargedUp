@@ -16,18 +16,31 @@ import frc.robot.Constants;
 
 public class Stinger extends SubsystemBase {
   private Solenoid m_stingerSolenoid;
-  private boolean m_lowered;
+  private Solenoid m_grabberSolenoid;
   private CANSparkMax m_extendSpark;
   private CANSparkMax m_raiseSpark;
+  private ShoulderState m_shoulderState;
+  private GrabberState m_grabberState;
+
+  public enum ElbowDirection { RAISE, LOWER, STOP };
+  public enum StingerDirection { EXTEND, RETRACT, STOP };
+  public enum ShoulderState { RAISED, LOWERED };
+  public enum GrabberState { PINCH, DROP };
  
   /** Creates a new Stinger. */
   public Stinger() {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
-    m_lowered = false;
-    m_extendSpark=new CANSparkMax(Constants.kExtendStingerSpark,MotorType.kBrushless);
+    m_grabberSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
+
+    m_extendSpark = new CANSparkMax(Constants.kExtendStingerSpark,MotorType.kBrushless);
+    m_raiseSpark = new CANSparkMax(Constants.kRaiseStingerSpark,MotorType.kBrushless);
+
     m_extendSpark.setIdleMode(IdleMode.kBrake);
-    m_raiseSpark=new CANSparkMax(Constants.kRaiseStingerSpark,MotorType.kBrushless);
     m_raiseSpark.setIdleMode(IdleMode.kBrake);
+
+    m_shoulderState = m_stingerSolenoid.get() ? ShoulderState.RAISED : ShoulderState.LOWERED;
+
+    m_grabberState = m_grabberSolenoid.get() ? GrabberState.PINCH : GrabberState.DROP;
 
     SmartDashboard.putNumber("Elbow Speed", 0.25);
     SmartDashboard.putNumber("Extend Speed", 0.25);
@@ -44,36 +57,28 @@ public class Stinger extends SubsystemBase {
     SmartDashboard.putNumber("Elbow Position", m_raiseSpark.getEncoder().getPosition());
     SmartDashboard.putNumber("Extend Position", m_extendSpark.getEncoder().getPosition());
   }
-  public void raiseElbow(){
-    m_raiseSpark.set(-elbowSpeed);
-  }
-  public void lowerElbow(){
-    m_raiseSpark.set(elbowSpeed);
-  }
-  public void stopElbow(){
-    m_raiseSpark.set(0);
-  }
-  public void extendStinger(){
-    m_extendSpark.set(extendSpeed);
-  }
-  public void retractStinger(){
-    m_extendSpark.set(-extendSpeed);
-  }
-  public void stopStinger(){
-    m_extendSpark.set(0);
-  }
-  public void lowerStinger() {
-    m_stingerSolenoid.set(false);
-    m_lowered = true;
+  
+  public void setGrabber(GrabberState state) {
+    m_grabberState = state;
+    m_grabberSolenoid.set(state == GrabberState.PINCH);
   }
 
-  public void raiseStinger() {
-    m_stingerSolenoid.set(true);
-    m_lowered = false;
+  public void setElbow(ElbowDirection direction) {
+    m_raiseSpark.set(direction == ElbowDirection.STOP ? 0
+      : direction == ElbowDirection.LOWER ? elbowSpeed : -elbowSpeed);
   }
 
-  public void toggleStinger() {
-    m_lowered = !m_lowered;
-    m_stingerSolenoid.set(m_lowered);
+  public void setStinger(StingerDirection direction) {
+    m_extendSpark.set(direction == StingerDirection.STOP ? 0
+      : direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed);
+  }
+
+  public void setShoulder(ShoulderState state) {
+    m_shoulderState = state;
+    m_stingerSolenoid.set(state == ShoulderState.RAISED);
+  }
+
+  public void toggleShoulder() {
+    setShoulder(m_shoulderState == ShoulderState.RAISED ? ShoulderState.LOWERED : ShoulderState.RAISED);
   }
 }

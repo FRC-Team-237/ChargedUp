@@ -32,12 +32,13 @@ public final class Constants {
     /** Drive motor speed is multiplied by this value */                                               
     public static final double kDriveReduction = 0.75;
     
-    public static final int kGrabbySolenoidIndex = 7;
+    public static final int kGrabbySolenoidIndex = 4;
+    public static final int kPincherSolenoidIndex = 7;
     public static final int kStingerSolenoid = 6;
     public static final int kdroppySolenoidIndex = 5;
     public static final int kSenseyGrabby = 0;
     public static final int kSenseyShooty = 1;
-    public static final int kGrabberRaised = 5;
+    public static final int kPincherRaised = 5;
     public static final int kTOTSwitch = 6;
     public static final double kShooter1SetPoint = 3300;
     public static final int kShooter2SetPoint = 5000;
