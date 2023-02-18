@@ -32,8 +32,8 @@ public class Stinger extends SubsystemBase {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
     m_grabberSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
 
-    m_extendSpark = new CANSparkMax(Constants.kExtendStingerSpark,MotorType.kBrushless);
-    m_raiseSpark = new CANSparkMax(Constants.kRaiseStingerSpark,MotorType.kBrushless);
+    m_extendSpark = new CANSparkMax(Constants.kExtendStingerSpark, MotorType.kBrushless);
+    m_raiseSpark = new CANSparkMax(Constants.kRaiseStingerSpark, MotorType.kBrushless);
 
     m_extendSpark.setIdleMode(IdleMode.kBrake);
     m_raiseSpark.setIdleMode(IdleMode.kBrake);
@@ -65,12 +65,12 @@ public class Stinger extends SubsystemBase {
 
   public void setElbow(ElbowDirection direction) {
     m_raiseSpark.set(direction == ElbowDirection.STOP ? 0
-      : direction == ElbowDirection.LOWER ? elbowSpeed : -elbowSpeed);
+      : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
   }
 
   public void setStinger(StingerDirection direction) {
     m_extendSpark.set(direction == StingerDirection.STOP ? 0
-      : direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed);
+      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
   }
 
   public void setShoulder(ShoulderState state) {

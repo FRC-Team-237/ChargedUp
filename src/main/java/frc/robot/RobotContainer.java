@@ -34,6 +34,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.TalonRamseteControllerAbstraction;
+import frc.robot.subsystems.Pincher.DropState;
 import frc.robot.subsystems.Pincher.PinchState;
 import frc.robot.subsystems.Stinger.ElbowDirection;
 import frc.robot.subsystems.Stinger.GrabberState;
@@ -57,6 +58,7 @@ public class RobotContainer {
   private XboxController m_xboxController;
   public static Joystick m_flightStick = new Joystick(2);
   public static Joystick panel = new Joystick(1);
+  public static Joystick m_arcadePanel = new Joystick(0);
 
   private DriveTrain m_driveTrain;
   private Pincher m_pincher;
@@ -84,6 +86,19 @@ public class RobotContainer {
     configureButtonBindings();
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(m_isRedAlliance ? 0 : 1);
 
+    // m_stinger.setDefaultCommand(
+    //   new RunCommand(
+    //     () -> {
+    //       int povIndex = m_arcadePanel.getPOV();
+    //       if(povIndex == 0) {
+    //         m_stinger.setStinger(StingerDirection.EXTEND);
+    //       } else if(povIndex == 180) {
+    //         m_stinger.setStinger(StingerDirection.RETRACT);
+    //       } else {
+    //         m_stinger.setStinger(StingerDirection.STOP);
+    //       }
+    //     }, m_stinger));
+
     m_driveTrain.setDefaultCommand(
       new RunCommand(
         () -> {
@@ -103,12 +118,14 @@ public class RobotContainer {
   enum Input {
     TOGGLE_SHOULDER,
     TOGGLE_DROPPER,
+    RAISE_DROPPER,
+    LOWER_DROPPER,
     PINCH,
     LOWER_ELBOW,
     RAISE_ELBOW,
     RETRACT_STINGER,
     EXTEND_STINGER,
-    GRAB,
+    GRAB
   }
 
   /**
@@ -127,7 +144,6 @@ public class RobotContainer {
         this.name = name;
       }
     }
-
     class InputButton {
       public String description;
       public JoystickButton button;
@@ -143,21 +159,31 @@ public class RobotContainer {
     }
 
     ControlMap flightStick = new ControlMap(m_flightStick, "Driver Stick");
-
+    ControlMap arcadePanel = new ControlMap(m_arcadePanel, "Panel");
+    
     HashMap<Input, InputButton> keyMap = new HashMap<Input, InputButton>();
 
-    keyMap.put(Input.TOGGLE_DROPPER,  new InputButton(flightStick, "Toggle Dropper",  9));
+    // keyMap.put(Input.TOGGLE_DROPPER,  new InputButton(flightStick, "Toggle Dropper",  9));
+    // keyMap.put(Input.PINCH,           new InputButton(flightStick, "Pinch",           1));
+    // keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(flightStick, "Toggle Shoulder", 8));
+    // keyMap.put(Input.LOWER_ELBOW,     new InputButton(flightStick, "Lower Elbow",     6));
+    // keyMap.put(Input.RAISE_ELBOW,     new InputButton(flightStick, "Raise Elbow",     7));
+    // keyMap.put(Input.RETRACT_STINGER, new InputButton(flightStick, "Retract Stinger", 10));
+    // keyMap.put(Input.EXTEND_STINGER,  new InputButton(flightStick, "Extend Stinger",  11));
+    // keyMap.put(Input.GRAB,            new InputButton(flightStick, "Grab",            2));
+
+    // keyMap.put(Input.TOGGLE_DROPPER,  new InputButton(arcadePanel, "Toggle Dropper",  3));
     keyMap.put(Input.PINCH,           new InputButton(flightStick, "Pinch",           1));
-
-    keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(flightStick, "Toggle Shoulder", 8));
-
-    keyMap.put(Input.LOWER_ELBOW,     new InputButton(flightStick, "Lower Elbow",     6));
-    keyMap.put(Input.RAISE_ELBOW,     new InputButton(flightStick, "Raise Elbow",     7));
-
-    keyMap.put(Input.RETRACT_STINGER, new InputButton(flightStick, "Retract Stinger", 10));
-    keyMap.put(Input.EXTEND_STINGER,  new InputButton(flightStick, "Extend Stinger",  11));
-
-    keyMap.put(Input.GRAB,            new InputButton(flightStick, "Grab",            2));
+    keyMap.put(Input.LOWER_DROPPER,   new InputButton(flightStick, "Lower Dropper",   6));
+    keyMap.put(Input.RAISE_DROPPER,   new InputButton(flightStick, "Raise Dropper",   7));
+    keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 6));
+    keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     2));
+    keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     4));
+    keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
+    keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
+    // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
+    // keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  11));
+    keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            5));
 
     keyMap.forEach((input, value) -> {
       SmartDashboard.putString(value.description, value.controller.name + " [" + value.buttonIndex + "]");
@@ -176,10 +202,19 @@ public class RobotContainer {
         m_stinger.toggleShoulder();
       }, m_stinger));
 
-    keyMap.get(Input.TOGGLE_DROPPER).button
+    // keyMap.get(Input.TOGGLE_DROPPER).button
+    //   .whileTrue(new InstantCommand(() -> {
+    //     m_pincher.toggleDropper();
+    //   }, m_pincher));
+    keyMap.get(Input.LOWER_DROPPER).button
       .whileTrue(new InstantCommand(() -> {
-        m_pincher.toggleDropper();
-      }, m_pincher));
+        m_pincher.setDropper(DropState.LOWERED);
+      }));
+    keyMap.get(Input.RAISE_DROPPER).button
+      .whileTrue(new InstantCommand(() -> {
+        m_pincher.setDropper(DropState.RAISED);
+      }));
+
 
     keyMap.get(Input.PINCH).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
@@ -221,37 +256,37 @@ public class RobotContainer {
           m_stinger.setStinger(StingerDirection.STOP);
         }));
 
-    new JoystickButton(m_xboxController, Button.kX.value)
-      .whileTrue(
-        new TargetFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP)
-          .andThen(new InstantCommand(() -> {
-            m_pincher.setPincher(PinchState.CLOSED);
-          } , m_pincher)));
+    // new JoystickButton(m_xboxController, Button.kX.value)
+    //   .whileTrue(
+    //     new TargetFinder(m_driveTrain, Constants.LimeLight.kGoalDriveP)
+    //       .andThen(new InstantCommand(() -> {
+    //         m_pincher.setPincher(PinchState.CLOSED);
+    //       } , m_pincher)));
 
-    new JoystickButton(m_xboxController, Button.kRightBumper.value)
-      .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-            m_pincher.setPincher(PinchState.CLOSED);
-          }, m_pincher)))
-      .whileFalse(new InstantCommand(() -> {
-            m_pincher.setPincher(PinchState.CLOSED);
-          }, m_pincher));
+    // new JoystickButton(m_xboxController, Button.kRightBumper.value)
+    //   .whileTrue(new RepeatCommand(new InstantCommand(() -> {
+    //         m_pincher.setPincher(PinchState.CLOSED);
+    //       }, m_pincher)))
+    //   .whileFalse(new InstantCommand(() -> {
+    //         m_pincher.setPincher(PinchState.CLOSED);
+    //       }, m_pincher));
 
-    new JoystickButton(m_xboxController, Button.kBack.value)
-      .whileTrue(
-        new InstantCommand(m_driveTrain::resetGyro)
-          .andThen(new InstantCommand(m_driveTrain::resetEncoders, m_driveTrain))
-          .andThen(new TurnToAngle(
-            180,
-            m_driveTrain,
-            SmartDashboard.getNumber("TurnToAngle P", 0.0113),
-            SmartDashboard.getNumber("TurnToAngle I", 0.0000),
-            SmartDashboard.getNumber("TurnToAngle D", 0.0025),
-            SmartDashboard.getNumber("TurnToAngle Deadband", 0)
-          ))
-    );
+    // new JoystickButton(m_xboxController, Button.kBack.value)
+    //   .whileTrue(
+    //     new InstantCommand(m_driveTrain::resetGyro)
+    //       .andThen(new InstantCommand(m_driveTrain::resetEncoders, m_driveTrain))
+    //       .andThen(new TurnToAngle(
+    //         180,
+    //         m_driveTrain,
+    //         SmartDashboard.getNumber("TurnToAngle P", 0.0113),
+    //         SmartDashboard.getNumber("TurnToAngle I", 0.0000),
+    //         SmartDashboard.getNumber("TurnToAngle D", 0.0025),
+    //         SmartDashboard.getNumber("TurnToAngle Deadband", 0)
+    //       ))
+    // );
 
-    new JoystickButton(m_xboxController, Button.kStart.value)
-      .whileTrue(new AutoDriveCommand(m_driveTrain, 180000, 0.5));
+    // new JoystickButton(m_xboxController, Button.kStart.value)
+    //   .whileTrue(new AutoDriveCommand(m_driveTrain, 180000, 0.5));
 
     // control panel buttons 
 
