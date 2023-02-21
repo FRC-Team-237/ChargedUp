@@ -16,6 +16,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final double kMaxElbowPosition = 64;
+    public static final double kMaxExtendPosition = 312;
     // CAN Addresses
     public static final int kMotorFL = 1;
     public static final int kMotorBL = 2;
@@ -103,6 +105,27 @@ public final class Constants {
         public static final double kTwoBalls = 0.35;
         public static final double kShoot = 0.93;
         public static final double kHang = 0.91;
+    }
+    public final class Pickup {
+        public static final double kElbow = 16;
+        public static final double kExtend = 181;
+    }
+    public final class ScoreLow {
+        public static final double kElbow = 41.8;
+        public static final double kExtend = 320;
+    }
+    public final class ScoreLowPlace {
+        public static final double kElbow = 32;
+        public static final double kExtend = 392;
+    }
+    public final class ScoreHigh {
+        public static final double kElbow = 54;
+        public static final double kElbowAfterLean = 73;
+        public static final double kExtend = 320;
+    }
+    public final class ScoreHighPlace {
+        public static final double kElbow = 66;
+        public static final double kExtend = 261;
     }
     public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(DTConsts.kTrackWidth);
     

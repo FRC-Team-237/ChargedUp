@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.Joystick;
 
 
 import edu.wpi.first.wpilibj.XboxController;
-
+import edu.wpi.first.wpilibj.SerialPort.StopBits;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.ConversionHelper;
@@ -125,7 +125,8 @@ public class RobotContainer {
     RAISE_ELBOW,
     RETRACT_STINGER,
     EXTEND_STINGER,
-    GRAB
+    GRAB,
+    ENABLE_CLOSED_LOOP
   }
 
   /**
@@ -181,6 +182,7 @@ public class RobotContainer {
     keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     4));
     keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
+    keyMap.put(Input.ENABLE_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));    
     // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
     // keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  11));
     keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            5));
@@ -189,13 +191,17 @@ public class RobotContainer {
       SmartDashboard.putString(value.description, value.controller.name + " [" + value.buttonIndex + "]");
     });
 
+    // keyMap.get(Input.GRAB).button
+    // .whileTrue(new RepeatCommand(new InstantCommand(() -> {
+    //   m_stinger.setGrabber(GrabberState.PINCH);
+    // }, m_stinger)))
+    // .whileFalse(new InstantCommand(() -> {
+    //   m_stinger.setGrabber(GrabberState.DROP);
+    // }, m_stinger));
     keyMap.get(Input.GRAB).button
-    .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-      m_stinger.setGrabber(GrabberState.PINCH);
-    }, m_stinger)))
-    .whileFalse(new InstantCommand(() -> {
-      m_stinger.setGrabber(GrabberState.DROP);
-    }, m_stinger));
+    .whileTrue(new InstantCommand(() -> {
+      m_stinger.toggleGrabber();
+    }));
 
     keyMap.get(Input.TOGGLE_SHOULDER).button
       .whileTrue(new InstantCommand(() -> {
@@ -255,6 +261,13 @@ public class RobotContainer {
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setStinger(StingerDirection.STOP);
         }));
+    keyMap.get(Input.ENABLE_CLOSED_LOOP).button
+      .whileTrue(new InstantCommand(()-> {
+        m_stinger.enableClosedLoop();
+      }))
+      .whileFalse(new InstantCommand(() -> {
+        m_stinger.setStinger(StingerDirection.STOP); 
+      }));
 
     // new JoystickButton(m_xboxController, Button.kX.value)
     //   .whileTrue(
