@@ -28,11 +28,17 @@ public class Pincher extends SubsystemBase {
   public void periodic() {}
 
   public void setPincher(PinchState state) {
+    if (m_dropState == DropState.RAISED) {
+      return;
+    }
     m_intakeSolenoid.set(state == PinchState.CLOSED);
   }
 
   public void setDropper(DropState state) {
     m_dropState = state;
+    if (m_dropState == DropState.RAISED) {
+      setPincher(PinchState.OPEN);
+    }
     m_droppySolenoid.set(state == DropState.LOWERED);
   }
 

@@ -126,7 +126,8 @@ public class RobotContainer {
     RETRACT_STINGER,
     EXTEND_STINGER,
     GRAB,
-    ENABLE_CLOSED_LOOP
+    ENABLE_EXTEND_CLOSED_LOOP,
+    ENABLE_ELBOW_CLOSED_LOOP
   }
 
   /**
@@ -182,7 +183,8 @@ public class RobotContainer {
     keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     4));
     keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
-    keyMap.put(Input.ENABLE_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));    
+    keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
+    keyMap.put(Input.ENABLE_ELBOW_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 8));    
     // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
     // keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  11));
     keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            5));
@@ -261,12 +263,19 @@ public class RobotContainer {
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setStinger(StingerDirection.STOP);
         }));
-    keyMap.get(Input.ENABLE_CLOSED_LOOP).button
+    keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
       .whileTrue(new InstantCommand(()-> {
-        m_stinger.enableClosedLoop();
+        m_stinger.enableExtendClosedLoop();
       }))
       .whileFalse(new InstantCommand(() -> {
         m_stinger.setStinger(StingerDirection.STOP); 
+      }));
+    keyMap.get(Input.ENABLE_ELBOW_CLOSED_LOOP).button
+      .whileTrue(new InstantCommand(()-> {
+        m_stinger.enableElbowClosedLoop();
+      }))
+      .whileFalse(new InstantCommand(() -> {
+        m_stinger.setElbow(ElbowDirection.STOP);
       }));
 
     // new JoystickButton(m_xboxController, Button.kX.value)
