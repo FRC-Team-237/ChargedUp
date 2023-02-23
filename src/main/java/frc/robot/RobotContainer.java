@@ -26,7 +26,8 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.ConversionHelper;
 import frc.robot.commands.AutoDriveCommand;
-
+import frc.robot.commands.ElbowToPosition;
+import frc.robot.commands.ExtendToPosition;
 import frc.robot.commands.TargetFinder;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
@@ -38,13 +39,15 @@ import frc.robot.subsystems.Pincher.DropState;
 import frc.robot.subsystems.Pincher.PinchState;
 import frc.robot.subsystems.Stinger.ElbowDirection;
 import frc.robot.subsystems.Stinger.GrabberState;
+import frc.robot.subsystems.Stinger.ShoulderState;
 import frc.robot.subsystems.Stinger.StingerDirection;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -127,7 +130,8 @@ public class RobotContainer {
     EXTEND_STINGER,
     GRAB,
     ENABLE_EXTEND_CLOSED_LOOP,
-    ENABLE_ELBOW_CLOSED_LOOP
+    PICKUP,
+    DRIVE_POSITION
   }
 
   /**
@@ -184,7 +188,10 @@ public class RobotContainer {
     keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
     keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
-    keyMap.put(Input.ENABLE_ELBOW_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 8));    
+    keyMap.put(Input.PICKUP, new InputButton(arcadePanel, "Elbow To Position Command", 9));   
+    keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 10));    
+
+    
     // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
     // keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  11));
     keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            5));
@@ -250,33 +257,43 @@ public class RobotContainer {
 
     keyMap.get(Input.RETRACT_STINGER).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-          m_stinger.setStinger(StingerDirection.RETRACT);
+          m_stinger.setExtend(StingerDirection.RETRACT);
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
-          m_stinger.setStinger(StingerDirection.STOP);
+          m_stinger.setExtend(StingerDirection.STOP);
         }));
 
     keyMap.get(Input.EXTEND_STINGER).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-          m_stinger.setStinger(StingerDirection.EXTEND);
+          m_stinger.setExtend(StingerDirection.EXTEND);
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
-          m_stinger.setStinger(StingerDirection.STOP);
+          m_stinger.setExtend(StingerDirection.STOP);
         }));
     keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
-      .whileTrue(new InstantCommand(()-> {
-        m_stinger.enableExtendClosedLoop();
-      }))
-      .whileFalse(new InstantCommand(() -> {
-        m_stinger.setStinger(StingerDirection.STOP); 
-      }));
-    keyMap.get(Input.ENABLE_ELBOW_CLOSED_LOOP).button
-      .whileTrue(new InstantCommand(()-> {
-        m_stinger.enableElbowClosedLoop();
-      }))
-      .whileFalse(new InstantCommand(() -> {
-        m_stinger.setElbow(ElbowDirection.STOP);
-      }));
+      .whileTrue(new ExtendToPosition(m_stinger, 181));
+    keyMap.get(Input.PICKUP).button
+      .whileTrue(new SequentialCommandGroup(
+          new InstantCommand(() -> {
+            m_stinger.setShoulder(ShoulderState.LOWERED);
+          }, m_stinger),
+          new ElbowToPosition(m_stinger, 16),
+          new ExtendToPosition(m_stinger, 181)
+      )
+      .unless(() -> {return m_pincher.m_dropState == DropState.RAISED;
+        }));
+    keyMap.get(Input.DRIVE_POSITION).button
+      .whileTrue(new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          m_stinger.setShoulder(ShoulderState.RAISED);
+        }, m_stinger),
+        new InstantCommand(() -> {
+          m_pincher.setDropper(DropState.RAISED);
+        }, m_stinger),
+        new ExtendToPosition(m_stinger, 0),
+        new ElbowToPosition(m_stinger, 14)
+      ));
+    
 
     // new JoystickButton(m_xboxController, Button.kX.value)
     //   .whileTrue(

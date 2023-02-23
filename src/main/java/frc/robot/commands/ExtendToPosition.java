@@ -34,7 +34,7 @@ public class ExtendToPosition extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_stinger.setStinger(StingerDirection.STOP);
+    m_stinger.setExtend(StingerDirection.STOP);
   }
 
   // Returns true when the command should end.

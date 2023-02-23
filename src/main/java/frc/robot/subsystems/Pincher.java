@@ -12,7 +12,7 @@ import frc.robot.Constants;
 public class Pincher extends SubsystemBase {
   private Solenoid m_intakeSolenoid;
   private Solenoid m_droppySolenoid;
-  private DropState m_dropState;
+  public DropState m_dropState;
 
   public enum PinchState { OPEN, CLOSED };
   public enum DropState { RAISED, LOWERED };

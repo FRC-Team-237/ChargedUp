@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -45,8 +46,8 @@ public class Stinger extends SubsystemBase {
   private double kElbowMin = -.25;
   private double kElbowMax = .25;
 
-  private final double kExtendDeadband = 0.0;
-  private final double kElbowDeadband = 0.0;
+  private final double kExtendDeadband = 10.0;
+  private final double kElbowDeadband = 1.0;
 
   private SparkMaxPIDController m_extendController;
   private RelativeEncoder m_extendEncoder;
@@ -115,6 +116,10 @@ public class Stinger extends SubsystemBase {
     m_elbowSpark.getEncoder().setPosition(0.0);
     SmartDashboard.putNumber("Elbow Speed", 0.25);
     SmartDashboard.putNumber("Extend Speed", 0.25);
+    SmartDashboard.putData("Zero Encoders", new InstantCommand(() -> {
+      m_elbowSpark.getEncoder().setPosition(0);
+      m_extendSpark.getEncoder().setPosition(0);
+    }));
     // tab.add("Pickup Elbow position", 16);
   }
 
@@ -244,14 +249,14 @@ public class Stinger extends SubsystemBase {
       : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
   }
 
-  public void setStinger(StingerDirection direction) {
+  public void setExtend(StingerDirection direction) {
     m_extendSpark.set(direction == StingerDirection.STOP ? 0
       : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
   }
 
   public void setShoulder(ShoulderState state) {
     m_shoulderState = state;
-    m_stingerSolenoid.set(state == ShoulderState.RAISED);
+    m_stingerSolenoid.set(state == ShoulderState.LOWERED);
   }
 
   public void toggleShoulder() {
