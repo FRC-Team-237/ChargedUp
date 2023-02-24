@@ -65,7 +65,7 @@ public class RobotContainer {
 
   private DriveTrain m_driveTrain;
   private Pincher m_pincher;
-  private Stinger m_stinger;
+  public Stinger m_stinger;
 
   private boolean m_isRedAlliance;
 
@@ -131,7 +131,8 @@ public class RobotContainer {
     GRAB,
     ENABLE_EXTEND_CLOSED_LOOP,
     PICKUP,
-    DRIVE_POSITION
+    DRIVE_POSITION,
+    STOP_LOOPS
   }
 
   /**
@@ -189,7 +190,8 @@ public class RobotContainer {
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
     keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
     keyMap.put(Input.PICKUP, new InputButton(arcadePanel, "Elbow To Position Command", 9));   
-    keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 10));    
+    keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 10));
+    keyMap.put(Input.STOP_LOOPS, new InputButton(flightStick, "Stops elbow and extend", 11));
 
     
     // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
@@ -271,14 +273,14 @@ public class RobotContainer {
           m_stinger.setExtend(StingerDirection.STOP);
         }));
     keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
-      .whileTrue(new ExtendToPosition(m_stinger, 181));
+      .whileTrue(new ElbowToPosition(m_stinger, 16));
     keyMap.get(Input.PICKUP).button
       .whileTrue(new SequentialCommandGroup(
           new InstantCommand(() -> {
             m_stinger.setShoulder(ShoulderState.LOWERED);
           }, m_stinger),
-          new ElbowToPosition(m_stinger, 16),
-          new ExtendToPosition(m_stinger, 181)
+          new ElbowToPosition(m_stinger, 16.85),
+          new ExtendToPosition(m_stinger, 215)
       )
       .unless(() -> {return m_pincher.m_dropState == DropState.RAISED;
         }));
@@ -291,8 +293,14 @@ public class RobotContainer {
           m_pincher.setDropper(DropState.RAISED);
         }, m_stinger),
         new ExtendToPosition(m_stinger, 0),
-        new ElbowToPosition(m_stinger, 14)
+        new ElbowToPosition(m_stinger, 16.85)
       ));
+
+    keyMap.get(Input.STOP_LOOPS).button
+      .whileTrue(new InstantCommand(() -> {
+        m_stinger.stopElbow();
+        m_stinger.stopExtend();
+      }));
     
 
     // new JoystickButton(m_xboxController, Button.kX.value)

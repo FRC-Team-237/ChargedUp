@@ -35,12 +35,13 @@ public class ElbowToPosition extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_stinger.setElbow(ElbowDirection.STOP);
+    // m_stinger.setElbow(ElbowDirection.STOP);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return m_stinger.isElbowFinished();
+    // return m_stinger.isElbowFinished();
+    return true;
   }
 }

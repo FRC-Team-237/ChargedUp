@@ -18,7 +18,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -117,8 +119,12 @@ public class Stinger extends SubsystemBase {
     SmartDashboard.putNumber("Elbow Speed", 0.25);
     SmartDashboard.putNumber("Extend Speed", 0.25);
     SmartDashboard.putData("Zero Encoders", new InstantCommand(() -> {
+      stopElbow();
+      stopExtend();
       m_elbowSpark.getEncoder().setPosition(0);
+      setElbowSetPoint(0);
       m_extendSpark.getEncoder().setPosition(0);
+      setExtendSetPoint(0);
     }));
     // tab.add("Pickup Elbow position", 16);
   }
@@ -237,7 +243,7 @@ public class Stinger extends SubsystemBase {
   
   public void setGrabber(GrabberState state) {
     m_grabberState = state;
-    m_grabberSolenoid.set(state == GrabberState.PINCH);
+    m_grabberSolenoid.set(state == GrabberState.DROP);
   }
 
   public void toggleGrabber() {
@@ -245,13 +251,33 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setElbow(ElbowDirection direction) {
-    m_elbowSpark.set(direction == ElbowDirection.STOP ? 0
-      : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
+    if (direction == ElbowDirection.STOP) {
+      setElbowSetPoint(m_elbowSpark.getEncoder().getPosition());
+      enableElbowClosedLoop();
+    } else {
+      m_elbowSpark.set(direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
+    }
+    // m_elbowSpark.set(direction == ElbowDirection.STOP ? 0
+    //   : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
+  }
+
+  public void stopElbow() {
+    m_elbowSpark.set(0);
   }
 
   public void setExtend(StingerDirection direction) {
-    m_extendSpark.set(direction == StingerDirection.STOP ? 0
-      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
+    if (direction == StingerDirection.STOP) {
+      setExtendSetPoint(m_extendSpark.getEncoder().getPosition());
+      enableExtendClosedLoop();
+    } else {
+      m_extendSpark.set(direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed);
+    }
+    // m_extendSpark.set(direction == StingerDirection.STOP ? 0
+    //   : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
+  }
+
+  public void stopExtend() {
+    m_extendSpark.set(0);
   }
 
   public void setShoulder(ShoulderState state) {

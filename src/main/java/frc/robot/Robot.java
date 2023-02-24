@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import frc.robot.subsystems.Leds;
+import frc.robot.subsystems.Stinger.ElbowDirection;
+import frc.robot.subsystems.Stinger.StingerDirection;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -67,6 +69,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.m_stinger.setElbow(ElbowDirection.STOP);
+    m_robotContainer.m_stinger.setExtend(StingerDirection.STOP);
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
@@ -90,6 +94,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.m_stinger.setElbow(ElbowDirection.STOP); // Note: this makes it stay at its current position
+    m_robotContainer.m_stinger.setExtend(StingerDirection.STOP);
 
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
     Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
