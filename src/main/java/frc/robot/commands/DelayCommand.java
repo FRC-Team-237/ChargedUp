@@ -13,7 +13,7 @@ public class DelayCommand extends CommandBase {
   private double m_timestamp;
   private boolean m_started;
 
-  /** Creates a new DelayCommand. */
+  /** Creates a new DelayCommand. Delay parameter is in seconds. */
   public DelayCommand(double delay) {
     // Use addRequirements() here to declare subsystem dependencies.
     m_delay = delay;

@@ -44,17 +44,20 @@ public class Stinger extends SubsystemBase {
   private double kElbowI = 1e-4;
   private double kElbowD = 1;
   private double kElbowIZ = 0;
-  private double kElbowFF = 0;
+  private double kElbowFF = 1e-5;
   private double kElbowMin = -.25;
   private double kElbowMax = .25;
 
-  private final double kExtendDeadband = 10.0;
-  private final double kElbowDeadband = 1.0;
+  private final double kExtendDeadband = 2.0;
+  private final double kElbowDeadband = 0.05;
 
   private SparkMaxPIDController m_extendController;
-  private RelativeEncoder m_extendEncoder;
+  public RelativeEncoder m_extendEncoder;
   private SparkMaxPIDController m_elbowController;
-  private RelativeEncoder m_elbowEncoder;
+  public RelativeEncoder m_elbowEncoder;
+
+  private double kExtendSetpoint;
+  private double kElbowSetpoint;
 
   private ShuffleboardTab tab = Shuffleboard.getTab("PID Testing");
   private GenericEntry extendPEntry = tab.add("Pickup Extend P", 0.8).getEntry();
@@ -75,8 +78,8 @@ public class Stinger extends SubsystemBase {
   private GenericEntry elbowMaxEntry = tab.add("Pickup Elbow Max", .5).getEntry();
   private GenericEntry elbowSetPointEntry = tab.add("Pickup Elbow Set Point", 0.0).getEntry();
 
-  public enum ElbowDirection { RAISE, LOWER, STOP };
-  public enum StingerDirection { EXTEND, RETRACT, STOP };
+  public enum ElbowDirection { STOP, RAISE, LOWER };
+  public enum StingerDirection { STOP, EXTEND, RETRACT };
   public enum ShoulderState { RAISED, LOWERED };
   public enum GrabberState { PINCH, DROP };
  
@@ -84,8 +87,6 @@ public class Stinger extends SubsystemBase {
   public Stinger() {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
     m_grabberSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
-
-    
 
     m_extendSpark = new CANSparkMax(Constants.kExtendStingerSpark, MotorType.kBrushless);
     m_elbowSpark = new CANSparkMax(Constants.kRaiseStingerSpark, MotorType.kBrushless);
@@ -112,8 +113,8 @@ public class Stinger extends SubsystemBase {
     m_elbowController.setOutputRange(kElbowMin, kElbowMax);
 
     m_shoulderState = m_stingerSolenoid.get() ? ShoulderState.RAISED : ShoulderState.LOWERED;
-
     m_grabberState = m_grabberSolenoid.get() ? GrabberState.PINCH : GrabberState.DROP;
+
     m_extendSpark.getEncoder().setPosition(0.0);
     m_elbowSpark.getEncoder().setPosition(0.0);
     SmartDashboard.putNumber("Elbow Speed", 0.25);
@@ -137,18 +138,17 @@ public class Stinger extends SubsystemBase {
     // This method will be called once per scheduler run
     elbowSpeed = SmartDashboard.getNumber("Elbow Speed", 0.25);
     extendSpeed = SmartDashboard.getNumber("Extend Speed", 0.25);
-    
 
     // double p = SmartDashboard.getNumber("Pickup elbow p", 0);
     // double i = SmartDashboard.getNumber("Pickup elbow i", 0);
     // double d = SmartDashboard.getNumber("Pickup elbow d", 0);
     // double iz = SmartDashboard.getNumber("Pickup elbow iz", 0);
     // double ff = SmartDashboard.getNumber("Pickup elbow ff", 0);
-    double p = extendPEntry.getDouble(0);
-    double i = extendIEntry.getDouble(0);
-    double d = extendDEntry.getDouble(0);
-    double iz = extendIZEntry.getDouble(0);
-    double ff = extendFFEntry.getDouble(0);
+    double p = extendPEntry.getDouble(kExtendP);
+    double i = extendIEntry.getDouble(kExtendI);
+    double d = extendDEntry.getDouble(kExtendD);
+    double iz = extendIZEntry.getDouble(kExtendIZ);
+    double ff = extendFFEntry.getDouble(kExtendFF);
     double min = extendMinEntry.getDouble(-.25);
     double max = extendMaxEntry.getDouble(.25);
     if (p != kExtendP) {
@@ -179,12 +179,12 @@ public class Stinger extends SubsystemBase {
       kExtendMax = max;
       m_extendController.setOutputRange(kExtendMin, kExtendMax);
     }
-   
-    p = elbowPEntry.getDouble(0);
-    i = elbowIEntry.getDouble(0);
-    d = elbowDEntry.getDouble(0);
-    iz = elbowIZEntry.getDouble(0);
-    ff = elbowFFEntry.getDouble(0);
+
+    p = elbowPEntry.getDouble(kElbowP);
+    i = elbowIEntry.getDouble(kElbowI);
+    d = elbowDEntry.getDouble(kElbowD);
+    iz = elbowIZEntry.getDouble(kElbowIZ);
+    ff = elbowFFEntry.getDouble(kElbowFF);
     min = elbowMinEntry.getDouble(-.25);
     max = elbowMaxEntry.getDouble(.25);
     if (p != kElbowP) {
@@ -215,30 +215,52 @@ public class Stinger extends SubsystemBase {
       kElbowMax = max;
       m_elbowController.setOutputRange(kElbowMin, kElbowMax);
     }
+    
+    // kExtendSetpoint = extendSetPointEntry.getDouble(0);
+    // kElbowSetpoint = elbowSetPointEntry.getDouble(0);
+
+    // if(isExtendFinished()) {
+    //   stopExtend();
+    // } else {
+    //   enableExtendClosedLoop();
+    // }
+
+    // if(isElbowFinished()) {
+    //   stopElbow();
+    // } else {
+    //   enableElbowClosedLoop();
+    // }
 
     SmartDashboard.putNumber("Elbow Position", m_elbowSpark.getEncoder().getPosition());
     SmartDashboard.putNumber("Extend Position", m_extendSpark.getEncoder().getPosition());
   }
 
   public void enableExtendClosedLoop() {
-    double setPoint = extendSetPointEntry.getDouble(0);
-    m_extendController.setReference(setPoint, CANSparkMax.ControlType.kPosition);
+    // kExtendSetpoint = extendSetPointEntry.getDouble(0);
+    m_extendController.setReference(kExtendSetpoint, CANSparkMax.ControlType.kPosition);
   }
+
   public void setExtendSetPoint(double setPoint) {
+    kExtendSetpoint = setPoint;
     extendSetPointEntry.setDouble(setPoint);
   }
+
   public boolean isExtendFinished() {
-    return Math.abs(m_extendSpark.getEncoder().getPosition() - extendSetPointEntry.getDouble(0)) <= kExtendDeadband;
+    return Math.abs(m_extendSpark.getEncoder().getPosition() - kExtendSetpoint) <= kExtendDeadband;
   }
+
   public void enableElbowClosedLoop() {
-    double setPoint = elbowSetPointEntry.getDouble(0);
-    m_elbowController.setReference(setPoint, CANSparkMax.ControlType.kPosition);
+    // kElbowSetpoint = elbowSetPointEntry.getDouble(0);
+    m_elbowController.setReference(kElbowSetpoint, CANSparkMax.ControlType.kPosition);
   }
+
   public void setElbowSetPoint(double setPoint) {
-    elbowSetPointEntry.setDouble(setPoint);
+    kElbowSetpoint = setPoint;
+    elbowSetPointEntry.setDouble(kElbowSetpoint);
   }
+
   public boolean isElbowFinished() {
-    return Math.abs(m_elbowSpark.getEncoder().getPosition() - elbowSetPointEntry.getDouble(0)) <= kElbowDeadband;
+    return Math.abs(m_elbowSpark.getEncoder().getPosition() - kElbowSetpoint) <= kElbowDeadband;
   }
   
   public void setGrabber(GrabberState state) {
@@ -251,14 +273,8 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setElbow(ElbowDirection direction) {
-    if (direction == ElbowDirection.STOP) {
-      setElbowSetPoint(m_elbowSpark.getEncoder().getPosition());
-      enableElbowClosedLoop();
-    } else {
-      m_elbowSpark.set(direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
-    }
-    // m_elbowSpark.set(direction == ElbowDirection.STOP ? 0
-    //   : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
+    m_elbowSpark.set(direction == ElbowDirection.STOP ? 0
+      : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
   }
 
   public void stopElbow() {
@@ -266,14 +282,8 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setExtend(StingerDirection direction) {
-    if (direction == StingerDirection.STOP) {
-      setExtendSetPoint(m_extendSpark.getEncoder().getPosition());
-      enableExtendClosedLoop();
-    } else {
-      m_extendSpark.set(direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed);
-    }
-    // m_extendSpark.set(direction == StingerDirection.STOP ? 0
-    //   : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
+    m_extendSpark.set(direction == StingerDirection.STOP ? 0
+      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
   }
 
   public void stopExtend() {

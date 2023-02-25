@@ -71,6 +71,11 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_robotContainer.m_stinger.setElbow(ElbowDirection.STOP);
     m_robotContainer.m_stinger.setExtend(StingerDirection.STOP);
+
+    m_robotContainer.m_stinger.setElbowSetPoint(m_robotContainer.m_stinger.m_elbowEncoder.getPosition());
+    m_robotContainer.m_stinger.enableElbowClosedLoop();
+    m_robotContainer.m_stinger.setExtendSetPoint(m_robotContainer.m_stinger.m_extendEncoder.getPosition());
+    m_robotContainer.m_stinger.enableExtendClosedLoop();
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;

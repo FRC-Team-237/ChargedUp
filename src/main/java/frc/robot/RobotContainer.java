@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.ConversionHelper;
 import frc.robot.commands.AutoDriveCommand;
+import frc.robot.commands.DelayCommand;
 import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
 import frc.robot.commands.TargetFinder;
@@ -247,6 +248,8 @@ public class RobotContainer {
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setElbow(ElbowDirection.STOP);
+          m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
+          m_stinger.enableElbowClosedLoop();
         }));
 
     keyMap.get(Input.RAISE_ELBOW).button
@@ -255,6 +258,8 @@ public class RobotContainer {
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setElbow(ElbowDirection.STOP);
+          m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
+          m_stinger.enableElbowClosedLoop();
         }));
 
     keyMap.get(Input.RETRACT_STINGER).button
@@ -263,6 +268,8 @@ public class RobotContainer {
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setExtend(StingerDirection.STOP);
+          m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
+          m_stinger.enableExtendClosedLoop();
         }));
 
     keyMap.get(Input.EXTEND_STINGER).button
@@ -271,7 +278,10 @@ public class RobotContainer {
         }, m_stinger)))
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setExtend(StingerDirection.STOP);
+          m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
+          m_stinger.enableExtendClosedLoop();
         }));
+
     keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
       .whileTrue(new ElbowToPosition(m_stinger, 16));
     keyMap.get(Input.PICKUP).button
@@ -279,20 +289,21 @@ public class RobotContainer {
           new InstantCommand(() -> {
             m_stinger.setShoulder(ShoulderState.LOWERED);
           }, m_stinger),
-          new ElbowToPosition(m_stinger, 16.85),
-          new ExtendToPosition(m_stinger, 215)
+          new ElbowToPosition(m_stinger, 18),
+          new ExtendToPosition(m_stinger, 220)
       )
-      .unless(() -> {return m_pincher.m_dropState == DropState.RAISED;
-        }));
+      .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
+
     keyMap.get(Input.DRIVE_POSITION).button
       .whileTrue(new SequentialCommandGroup(
         new InstantCommand(() -> {
           m_stinger.setShoulder(ShoulderState.RAISED);
         }, m_stinger),
         new InstantCommand(() -> {
-          m_pincher.setDropper(DropState.RAISED);
+          m_pincher.setDropper(DropState.RAISED); // check if dropper is raised before starting command
         }, m_stinger),
         new ExtendToPosition(m_stinger, 0),
+        new DelayCommand(0.5),
         new ElbowToPosition(m_stinger, 16.85)
       ));
 
