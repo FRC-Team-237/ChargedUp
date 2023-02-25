@@ -265,7 +265,7 @@ public class Stinger extends SubsystemBase {
   
   public void setGrabber(GrabberState state) {
     m_grabberState = state;
-    m_grabberSolenoid.set(state == GrabberState.DROP);
+    m_grabberSolenoid.set(state == GrabberState.PINCH);
   }
 
   public void toggleGrabber() {

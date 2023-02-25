@@ -49,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -131,7 +132,8 @@ public class RobotContainer {
     EXTEND_STINGER,
     GRAB,
     ENABLE_EXTEND_CLOSED_LOOP,
-    PICKUP,
+    PICKUP_FAR,
+    PICKUP_CLOSE,
     DRIVE_POSITION,
     STOP_LOOPS
   }
@@ -189,8 +191,9 @@ public class RobotContainer {
     keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     4));
     keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
-    keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
-    keyMap.put(Input.PICKUP, new InputButton(arcadePanel, "Elbow To Position Command", 9));   
+    // keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
+    keyMap.put(Input.PICKUP_CLOSE, new InputButton(arcadePanel, "Elbow To Close Position Command", 7));
+    keyMap.put(Input.PICKUP_FAR, new InputButton(arcadePanel, "Elbow To Far Position Command", 8));   
     keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 10));
     keyMap.put(Input.STOP_LOOPS, new InputButton(flightStick, "Stops elbow and extend", 11));
 
@@ -282,15 +285,27 @@ public class RobotContainer {
           m_stinger.enableExtendClosedLoop();
         }));
 
-    keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
-      .whileTrue(new ElbowToPosition(m_stinger, 16));
-    keyMap.get(Input.PICKUP).button
+    // keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
+    //   .whileTrue(new ElbowToPosition(m_stinger, 16));
+    keyMap.get(Input.PICKUP_FAR).button
       .whileTrue(new SequentialCommandGroup(
           new InstantCommand(() -> {
             m_stinger.setShoulder(ShoulderState.LOWERED);
+            m_stinger.setGrabber(GrabberState.DROP);
           }, m_stinger),
           new ElbowToPosition(m_stinger, 18),
           new ExtendToPosition(m_stinger, 220)
+      )
+      .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
+
+    keyMap.get(Input.PICKUP_CLOSE).button
+      .whileTrue(new SequentialCommandGroup(
+          new InstantCommand(() -> {
+            m_stinger.setShoulder(ShoulderState.LOWERED);
+            m_stinger.setGrabber(GrabberState.DROP);
+          }, m_stinger),
+          new ElbowToPosition(m_stinger, 16.1),
+          new ExtendToPosition(m_stinger, 215.8)
       )
       .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
 
@@ -303,7 +318,6 @@ public class RobotContainer {
           m_pincher.setDropper(DropState.RAISED); // check if dropper is raised before starting command
         }, m_stinger),
         new ExtendToPosition(m_stinger, 0),
-        new DelayCommand(0.5),
         new ElbowToPosition(m_stinger, 16.85)
       ));
 
@@ -312,7 +326,40 @@ public class RobotContainer {
         m_stinger.stopElbow();
         m_stinger.stopExtend();
       }));
+
+    SmartDashboard.putData("Test Mid Position", new SequentialCommandGroup(
+      new InstantCommand(() -> {
+        m_stinger.setShoulder(ShoulderState.RAISED);
+      }, m_stinger),
+      new ElbowToPosition(m_stinger, 44.5),
+      new ExtendToPosition(m_stinger, 410)
+    ));
+
+    SmartDashboard.putData("Test High Position", new SequentialCommandGroup(
+      new ElbowToPosition(m_stinger, 78.5)
+        .andThen(new WaitCommand(1))
+        .andThen(new InstantCommand(() -> {
+            m_stinger.setShoulder(ShoulderState.LOWERED);
+          }, m_stinger),
+          new ExtendToPosition(m_stinger, 335))
+    ));
     
+    /* Scoring Positions:
+     *  - Mid:
+     *    - Raise:
+     *       Elbow 44.5
+     *       Extend 410
+     *    - Place:
+     *       Elbow 35
+     *       Extend ***
+     *       Drop
+     * 
+     *  - High:
+     *    - Raise:
+     *       Elbow 78.5
+     *       Extend 335
+     * 
+     */
 
     // new JoystickButton(m_xboxController, Button.kX.value)
     //   .whileTrue(
