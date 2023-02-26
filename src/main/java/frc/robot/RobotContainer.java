@@ -135,7 +135,10 @@ public class RobotContainer {
     PICKUP_FAR,
     PICKUP_CLOSE,
     DRIVE_POSITION,
-    STOP_LOOPS
+    STOP_LOOPS,
+    SCORE_HIGH,
+    SCORE_MID,
+    SCORE
   }
 
   /**
@@ -173,34 +176,27 @@ public class RobotContainer {
     
     HashMap<Input, InputButton> keyMap = new HashMap<Input, InputButton>();
 
-    // keyMap.put(Input.TOGGLE_DROPPER,  new InputButton(flightStick, "Toggle Dropper",  9));
-    // keyMap.put(Input.PINCH,           new InputButton(flightStick, "Pinch",           1));
-    // keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(flightStick, "Toggle Shoulder", 8));
-    // keyMap.put(Input.LOWER_ELBOW,     new InputButton(flightStick, "Lower Elbow",     6));
-    // keyMap.put(Input.RAISE_ELBOW,     new InputButton(flightStick, "Raise Elbow",     7));
-    // keyMap.put(Input.RETRACT_STINGER, new InputButton(flightStick, "Retract Stinger", 10));
-    // keyMap.put(Input.EXTEND_STINGER,  new InputButton(flightStick, "Extend Stinger",  11));
-    // keyMap.put(Input.GRAB,            new InputButton(flightStick, "Grab",            2));
-
-    // keyMap.put(Input.TOGGLE_DROPPER,  new InputButton(arcadePanel, "Toggle Dropper",  3));
     keyMap.put(Input.PINCH,           new InputButton(flightStick, "Pinch",           1));
     keyMap.put(Input.LOWER_DROPPER,   new InputButton(flightStick, "Lower Dropper",   6));
     keyMap.put(Input.RAISE_DROPPER,   new InputButton(flightStick, "Raise Dropper",   7));
-    keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 6));
-    keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     2));
-    keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     4));
-    keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 1));
-    keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  3));
+    keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 26));
+    keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     30));
+    keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     29));
+    keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 28));
+    keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  27));
     // keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
-    keyMap.put(Input.PICKUP_CLOSE, new InputButton(arcadePanel, "Elbow To Close Position Command", 7));
-    keyMap.put(Input.PICKUP_FAR, new InputButton(arcadePanel, "Elbow To Far Position Command", 8));   
-    keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 10));
+    keyMap.put(Input.PICKUP_CLOSE, new InputButton(arcadePanel, "Elbow To Close Position Command", 8));
+    keyMap.put(Input.PICKUP_FAR, new InputButton(arcadePanel, "Elbow To Far Position Command", 6));   
+    keyMap.put(Input.DRIVE_POSITION, new InputButton(arcadePanel, "To drive position command", 7));
     keyMap.put(Input.STOP_LOOPS, new InputButton(flightStick, "Stops elbow and extend", 11));
+    keyMap.put(Input.SCORE_HIGH, new InputButton(arcadePanel, "Score high", 32));
+    keyMap.put(Input.SCORE_MID, new InputButton(arcadePanel, "Score mid", 31));
+    keyMap.put(Input.SCORE, new InputButton(arcadePanel, "Score", 5));
 
     
     // keyMap.put(Input.RETRACT_STINGER, new InputButton(arcadePanel, "Retract Stinger", 10));
     // keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  11));
-    keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            5));
+    keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            4));
 
     keyMap.forEach((input, value) -> {
       SmartDashboard.putString(value.description, value.controller.name + " [" + value.buttonIndex + "]");
@@ -294,7 +290,7 @@ public class RobotContainer {
             m_stinger.setGrabber(GrabberState.DROP);
           }, m_stinger),
           new ElbowToPosition(m_stinger, 18),
-          new ExtendToPosition(m_stinger, 220)
+          new ExtendToPosition(m_stinger, 218)
       )
       .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
 
@@ -305,7 +301,7 @@ public class RobotContainer {
             m_stinger.setGrabber(GrabberState.DROP);
           }, m_stinger),
           new ElbowToPosition(m_stinger, 16.1),
-          new ExtendToPosition(m_stinger, 215.8)
+          new ExtendToPosition(m_stinger, 200)
       )
       .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
 
@@ -327,7 +323,8 @@ public class RobotContainer {
         m_stinger.stopExtend();
       }));
 
-    SmartDashboard.putData("Test Mid Position", new SequentialCommandGroup(
+    keyMap.get(Input.SCORE_MID).button
+      .onTrue(new SequentialCommandGroup(
       new InstantCommand(() -> {
         m_stinger.setShoulder(ShoulderState.RAISED);
       }, m_stinger),
@@ -335,14 +332,40 @@ public class RobotContainer {
       new ExtendToPosition(m_stinger, 410)
     ));
 
-    SmartDashboard.putData("Test High Position", new SequentialCommandGroup(
-      new ElbowToPosition(m_stinger, 78.5)
-        .andThen(new WaitCommand(1))
-        .andThen(new InstantCommand(() -> {
-            m_stinger.setShoulder(ShoulderState.LOWERED);
-          }, m_stinger),
-          new ExtendToPosition(m_stinger, 335))
-    ));
+    keyMap.get(Input.SCORE_HIGH).button
+      .onTrue(new SequentialCommandGroup(
+        new ElbowToPosition(m_stinger, 78.5)
+          .andThen(new WaitCommand(1))
+          .andThen(new InstantCommand(() -> {
+              m_stinger.setShoulder(ShoulderState.LOWERED);
+            }, m_stinger),
+            new ExtendToPosition(m_stinger, 335))
+      ));
+
+      keyMap.get(Input.SCORE).button
+        .onTrue(new SequentialCommandGroup(
+          new InstantCommand(() -> {
+            m_stinger.setElbowSetPoint(m_stinger.kElbowSetpoint - 7);
+            m_stinger.enableElbowClosedLoop();
+          }, m_stinger)
+          .andThen(new WaitCommand(0.25))
+          .andThen(new InstantCommand(() -> {
+            m_stinger.setGrabber(GrabberState.DROP);
+          }, m_stinger))
+      ));
+
+      // keyMap.get(Input.SCORE).button
+      //   .onTrue(new SequentialCommandGroup(
+      //     new ElbowToPosition(m_stinger, -7, true)
+      //       .andThen(new WaitCommand(.5))
+      //       .andThen(new InstantCommand(() -> {
+      //           m_stinger.setGrabber(GrabberState.DROP);
+      //         }, m_stinger))
+      //   ).unless(
+      //     () -> {
+      //       return m_stinger.m_elbowEncoder.getPosition() < 40;
+      //     }
+      //   ));
     
     /* Scoring Positions:
      *  - Mid:

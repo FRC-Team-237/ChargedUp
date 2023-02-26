@@ -136,6 +136,9 @@ public class DriveTrain extends SubsystemBase {
       xSpeed * m_speedScale,
       zRotation  * m_speedScale,
       true);
+    // m_differentialDrive.arcadeDrive(
+    //   xSpeed * m_speedScale,
+    //   zRotation);
   }
 
   public void driveRaw(double zRotation, double xSpeed) {

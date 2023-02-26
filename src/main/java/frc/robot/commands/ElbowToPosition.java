@@ -11,6 +11,9 @@ import frc.robot.subsystems.Stinger.ElbowDirection;
 public class ElbowToPosition extends CommandBase {
   Stinger m_stinger;
   double m_position;
+  double m_startPoint = 0;
+  double m_deltaPosition = 0;
+  boolean m_relative;
 
   /** Creates a new ElbowToPosition. */
   public ElbowToPosition(Stinger stinger, double position) {
@@ -20,10 +23,23 @@ public class ElbowToPosition extends CommandBase {
     addRequirements(m_stinger);
   }
 
+  public ElbowToPosition(Stinger stinger, double relativePosition, boolean relative) {
+    // Use addRequirements() here to declare subsystem dependencies.
+    m_stinger = stinger;
+    m_deltaPosition = relativePosition;
+    m_relative = relative;
+    m_startPoint = m_stinger.kElbowSetpoint;
+    addRequirements(m_stinger);
+  }
+
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_stinger.setElbowSetPoint(m_position);
+    if (m_relative) {
+      m_stinger.setElbowSetPoint(m_startPoint + m_deltaPosition);
+    } else {
+      m_stinger.setElbowSetPoint(m_position);
+    }
     m_stinger.enableElbowClosedLoop();
   }
 

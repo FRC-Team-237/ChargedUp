@@ -56,8 +56,8 @@ public class Stinger extends SubsystemBase {
   private SparkMaxPIDController m_elbowController;
   public RelativeEncoder m_elbowEncoder;
 
-  private double kExtendSetpoint;
-  private double kElbowSetpoint;
+  public double kExtendSetpoint;
+  public double kElbowSetpoint;
 
   private ShuffleboardTab tab = Shuffleboard.getTab("PID Testing");
   private GenericEntry extendPEntry = tab.add("Pickup Extend P", 0.8).getEntry();
