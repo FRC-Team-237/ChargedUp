@@ -85,4 +85,8 @@ public class ConversionHelper {
   public static double mapRange(double input, double inMin, double inMax, double outMin, double outMax) {
     return (outMax - outMin) * (input - inMin) / (inMax - inMin) + outMin;
   }
+
+  public static boolean inPosition(double value1, double value2, double deadband) {
+    return Math.abs(value1 - value2) < deadband;
+  }
 }

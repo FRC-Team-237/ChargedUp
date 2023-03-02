@@ -12,7 +12,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.TargetPeg;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Stinger.ElbowDirection;
 import frc.robot.subsystems.Stinger.StingerDirection;
@@ -40,6 +42,8 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     Leds.getInstance().resetColor();
     m_robotContainer = new RobotContainer();
+
+    // SmartDashboard.putData("Find Goal", new TargetPeg());
   }
 
   /**

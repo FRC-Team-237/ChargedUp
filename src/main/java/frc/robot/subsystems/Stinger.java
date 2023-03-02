@@ -11,16 +11,13 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -31,6 +28,8 @@ public class Stinger extends SubsystemBase {
   private CANSparkMax m_elbowSpark;
   private ShoulderState m_shoulderState;
   private GrabberState m_grabberState;
+
+  public DigitalInput m_shoulderInPlace;
 
   private double kExtendP = 0.8;
   private double kExtendI = 1e-4;
@@ -87,6 +86,8 @@ public class Stinger extends SubsystemBase {
   public Stinger() {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
     m_grabberSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kGrabbySolenoidIndex);
+
+    m_shoulderInPlace = new DigitalInput(0);
 
     m_extendSpark = new CANSparkMax(Constants.kExtendStingerSpark, MotorType.kBrushless);
     m_elbowSpark = new CANSparkMax(Constants.kRaiseStingerSpark, MotorType.kBrushless);
@@ -233,6 +234,7 @@ public class Stinger extends SubsystemBase {
 
     SmartDashboard.putNumber("Elbow Position", m_elbowSpark.getEncoder().getPosition());
     SmartDashboard.putNumber("Extend Position", m_extendSpark.getEncoder().getPosition());
+    SmartDashboard.putString("Shoulder State", isShoulderDown() ? "Down" : "Up");
   }
 
   public void enableExtendClosedLoop() {
@@ -288,6 +290,10 @@ public class Stinger extends SubsystemBase {
 
   public void stopExtend() {
     m_extendSpark.set(0);
+  }
+
+  public boolean isShoulderDown() {
+    return !m_shoulderInPlace.get();
   }
 
   public void setShoulder(ShoulderState state) {
