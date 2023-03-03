@@ -32,6 +32,7 @@ import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
 import frc.robot.commands.PickupPosition;
 import frc.robot.commands.TargetFinder;
+import frc.robot.commands.TargetPeg;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 
@@ -220,12 +221,12 @@ public class RobotContainer {
 
     keyMap.get(Input.FACE_DOWNFIELD).button
       .onTrue(
-        new TurnToAngle(0, m_driveTrain, 0.0113, 0.0000, 0.0025, 5)
+        new TurnToAngle(0, m_driveTrain, 0.001, 0.0000, 0.0025, 5)
       .unless(() -> { return m_flightStick.getMagnitude() > .05; }));
 
     keyMap.get(Input.FACE_UPFIELD).button
       .onTrue(
-        new TurnToAngle(180, m_driveTrain, 0.0113, 0.0000, 0.0025, 5)
+        new TurnToAngle(180, m_driveTrain, 0.001, 0.0000, 0.0025, 5)
       .unless(() -> { return m_flightStick.getMagnitude() > .05; }));
 
     // keyMap.get(Input.GRAB).button
@@ -309,16 +310,18 @@ public class RobotContainer {
     // keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
     //   .whileTrue(new ElbowToPosition(m_stinger, 16));
     keyMap.get(Input.PICKUP_FAR).button
-      .whileTrue(new SequentialCommandGroup(
-          new InstantCommand(() -> {
-            m_pincher.setPincher(PinchState.OPEN);
-            m_stinger.setShoulder(ShoulderState.LOWERED);
-            m_stinger.setGrabber(GrabberState.DROP);
-          }, m_stinger),
-          new ElbowToPosition(m_stinger, 18),
-          new ExtendToPosition(m_stinger, 175)
-      )
-      .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
+      .whileTrue(new TargetPeg(m_driveTrain)
+      .until(() -> { return m_flightStick.getMagnitude() > 0.1; }));
+      // .whileTrue(new SequentialCommandGroup(
+      //     new InstantCommand(() -> {
+      //       m_pincher.setPincher(PinchState.OPEN);
+      //       m_stinger.setShoulder(ShoulderState.LOWERED);
+      //       m_stinger.setGrabber(GrabberState.DROP);
+      //     }, m_stinger),
+      //     new ElbowToPosition(m_stinger, 18),
+      //     new ExtendToPosition(m_stinger, 175)
+      // )
+      // .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; }));
 
     
     keyMap.get(Input.PICKUP_AND_DRIVE_POS).button
@@ -396,7 +399,7 @@ public class RobotContainer {
         m_stinger.setShoulder(ShoulderState.RAISED);
       }, m_stinger),
       new ElbowToPosition(m_stinger, 41.6),
-      new ExtendToPosition(m_stinger, 480)
+      new ExtendToPosition(m_stinger, 605)
     ));
 
     keyMap.get(Input.SCORE_HIGH).button
@@ -530,10 +533,9 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-  //   // An ExampleCommand will run in autonomous
-  //   // return m_autoCommand;
-  // }
+  public Command getAutonomousCommand() {
+    return new AutoDriveCommand(m_driveTrain, 1000, 0.25);
+  }
 }
 
 

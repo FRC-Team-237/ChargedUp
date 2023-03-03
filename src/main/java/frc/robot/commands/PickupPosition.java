@@ -21,7 +21,6 @@ public class PickupPosition extends CommandBase {
 
     @Override
     public void initialize() {
-      m_pincher.setPincher(PinchState.OPEN);
       m_stinger.setShoulder(ShoulderState.LOWERED);
       m_stinger.setGrabber(GrabberState.DROP);
 

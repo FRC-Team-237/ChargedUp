@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
     m_robotContainer.m_stinger.enableElbowClosedLoop();
     m_robotContainer.m_stinger.setExtendSetPoint(m_robotContainer.m_stinger.m_extendEncoder.getPosition());
     m_robotContainer.m_stinger.enableExtendClosedLoop();
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
     Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
