@@ -44,10 +44,9 @@ public class GoalFinder extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double tv = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tv").getDouble(0); 
-    double tx = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tx").getDouble(0); 
-    double ty = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("ty").getDouble(0); 
-  
+    double tv = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tv").getDouble(0);
+    double tx = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("tx").getDouble(0);
+    double ty = NetworkTableInstance.getDefault().getTable("limelight-goal").getEntry("ty").getDouble(0);
     
     SmartDashboard.putNumber("Shooter tx", tx);
     SmartDashboard.putNumber("Shooter ty", ty);

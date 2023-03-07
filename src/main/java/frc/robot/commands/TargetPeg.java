@@ -23,7 +23,7 @@ public class TargetPeg extends CommandBase {
 
     public TargetPeg(DriveTrain driveTrain) {
         this.driveTrain = driveTrain;
-        this.steerDebouncer = new Debouncer(0.25, DebounceType.kBoth);
+        this.steerDebouncer = new Debouncer(1, DebounceType.kBoth);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class TargetPeg extends CommandBase {
 
         SmartDashboard.putString("Target Info", "X Offset: " + xOffset + " | " + "Has Target: " + hasTarget);
 
-        double turnValue = xOffset * 0.02;
+        double turnValue = xOffset * 0.025;
 
         driveTrain.driveRaw(turnValue, 0);
     }

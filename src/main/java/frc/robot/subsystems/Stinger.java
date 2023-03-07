@@ -81,7 +81,7 @@ public class Stinger extends SubsystemBase {
   public enum StingerDirection { STOP, EXTEND, RETRACT };
   public enum ShoulderState { RAISED, LOWERED };
   public enum GrabberState { PINCH, DROP };
- 
+
   /** Creates a new Stinger. */
   public Stinger() {
     m_stingerSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kStingerSolenoid);
@@ -234,7 +234,6 @@ public class Stinger extends SubsystemBase {
 
     SmartDashboard.putNumber("Elbow Position", m_elbowSpark.getEncoder().getPosition());
     SmartDashboard.putNumber("Extend Position", m_extendSpark.getEncoder().getPosition());
-    SmartDashboard.putString("Shoulder State", isShoulderDown() ? "Down" : "Up");
   }
 
   public void enableExtendClosedLoop() {
