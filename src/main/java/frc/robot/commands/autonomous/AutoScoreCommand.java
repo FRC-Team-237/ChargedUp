@@ -4,12 +4,18 @@
 
 package frc.robot.commands.autonomous;
 
+import java.time.Instant;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
+import frc.robot.commands.DrivePosition;
 import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
@@ -22,6 +28,8 @@ public class AutoScoreCommand extends CommandBase {
   DriveTrain driveTrain;
   Stinger stinger;
   Pincher pincher;
+
+  private boolean finished = false;
 
   /** Creates a new AutoScoreCommand. */
   public AutoScoreCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
@@ -39,17 +47,31 @@ public class AutoScoreCommand extends CommandBase {
       pincher.setDropper(DropState.LOWERED);
     })
     .andThen(new WaitCommand(0.35))
+
     .andThen(new ElbowToPosition(stinger, 78.5))
     .andThen(new WaitCommand(0.25))
+    
     .andThen(new ExtendToPosition(stinger, 210))
     .andThen(new WaitCommand(0.25))
+
     .andThen(new InstantCommand(() -> { pincher.setDropper(DropState.RAISED); }))
     .andThen(new WaitCommand(0.5))
+
     .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.LOWERED); }))
     .andThen(new WaitCommand(0.125))
-    .andThen(new AutoDriveCommand(driveTrain, 40000, 0.25))
+
+    .andThen(new AutoDriveCommand(driveTrain, 25000, 0.25))
     .andThen(new WaitCommand(1))
+
     .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
+    .andThen(new WaitCommand(0.5))
+
+    .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3))
+    .andThen(new DrivePosition(stinger, pincher))
+    .andThen(new TurnToAngle(180, driveTrain, 0.002, 0.0000, 0.0035, 5))
+    .andThen(new AutoDriveCommand(driveTrain, 15000, 0.3)
+      .until(() -> { return Math.abs(driveTrain.getPitch()) > 8; })
+    .andThen(new AutoBalance(driveTrain, 0.0175, 0, 0, 5)))
     .schedule();
   }
 
@@ -64,6 +86,6 @@ public class AutoScoreCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return finished;
   }
 }

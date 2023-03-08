@@ -45,7 +45,8 @@ public class DriveTrain extends SubsystemBase {
   public AHRS m_gyro;
 
   private double m_speedScale;
-
+  public boolean m_preciseTurning = false;
+  public boolean m_brake = false;
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
@@ -146,7 +147,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void driveRaw(double zRotation, double xSpeed) {
-    m_differentialDrive.arcadeDrive(zRotation,xSpeed, false);
+    m_differentialDrive.arcadeDrive(zRotation, xSpeed, false);
   }
 
   public void tankDriveVolts(double left, double right) {

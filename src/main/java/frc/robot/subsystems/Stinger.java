@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.ConversionHelper;
 import frc.robot.Constants;
 
 public class Stinger extends SubsystemBase {
@@ -283,8 +284,12 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setExtend(StingerDirection direction) {
-    m_extendSpark.set(direction == StingerDirection.STOP ? 0
-      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed));
+    m_extendSpark.set(
+      ConversionHelper.clamp(
+      direction == StingerDirection.STOP ? 0
+      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed),
+      -Integer.MAX_VALUE, 650)
+      );
   }
 
   public void stopExtend() {

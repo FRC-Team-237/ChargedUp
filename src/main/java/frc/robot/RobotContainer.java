@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj.Joystick;
 
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.ConversionHelper;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
 import frc.robot.commands.DrivePosition;
 import frc.robot.commands.ElbowToPosition;
@@ -110,10 +112,13 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           m_driveTrain.drive(
-            m_flightStick.getX(),
-            m_flightStick.getY());
+            m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getX())
+            : m_flightStick.getX(),
+            m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getY())
+            : m_flightStick.getY());
           m_driveTrain.setScale(
-            ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .25, 0.75));
+            m_driveTrain.m_preciseTurning ? 0.15
+            : ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .25, 0.75));
         }, m_driveTrain));
   }
 
@@ -146,7 +151,10 @@ public class RobotContainer {
     FACE_UPFIELD,
     TARGET_MID,
     TARGET_HIGH,
-    TARGET_CONE
+    TARGET_CONE,
+    PRECISE_TURNING,
+    TOGGLE_BRAKES,
+    AUTO_BALANCE,
   }
 
   /**
@@ -189,6 +197,9 @@ public class RobotContainer {
     keyMap.put(Input.RAISE_DROPPER,   new InputButton(flightStick, "Raise Dropper",   7));
     keyMap.put(Input.TARGET_MID,      new InputButton(flightStick, "Target Mid", 9));
     keyMap.put(Input.TARGET_CONE,     new InputButton(flightStick, "Target Cone", 8));
+    keyMap.put(Input.PRECISE_TURNING, new InputButton(flightStick, "Precise Turning", 2));
+    keyMap.put(Input.TOGGLE_BRAKES,   new InputButton(flightStick, "Toggle brakes", 11));
+    keyMap.put(Input.AUTO_BALANCE,    new InputButton(flightStick, "Auto Balance", 10));
     // keyMap.put(Input.TARGET_HIGH,     new InputButton(flightStick, "Target High", 3));
     keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 26));
     keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     30));
@@ -232,6 +243,18 @@ public class RobotContainer {
     // .whileFalse(new InstantCommand(() -> {
     //   m_stinger.setGrabber(GrabberState.DROP);
     // }, m_stinger));
+
+    keyMap.get(Input.AUTO_BALANCE).button
+      .whileTrue(new AutoBalance(m_driveTrain, 0.0175, 0, 0, 5));
+
+    keyMap.get(Input.TOGGLE_BRAKES).button
+      .onTrue(new InstantCommand(() -> {
+        m_driveTrain.m_brake = !m_driveTrain.m_brake;
+        if(m_driveTrain.m_brake) m_driveTrain.enableMotorBreak();
+        else m_driveTrain.disableMotorBreak();
+        SmartDashboard.putBoolean("Brakes", m_driveTrain.m_brake);
+      }));
+
     keyMap.get(Input.GRAB).button
     .whileTrue(new InstantCommand(() -> {
       m_stinger.toggleGrabber();
@@ -240,7 +263,11 @@ public class RobotContainer {
     keyMap.get(Input.TOGGLE_SHOULDER).button
       .onTrue(new InstantCommand(() -> {
         m_stinger.toggleShoulder();
-      }, m_stinger));
+      }, m_stinger)
+      // .unless(() -> {
+      //   return m_stinger.m_extendEncoder.getPosition() > 650 && m_stinger.m_elbowEncoder.getPosition() > 65;
+      // })
+      );
 
     // keyMap.get(Input.TOGGLE_DROPPER).button
     //   .whileTrue(new InstantCommand(() -> {
@@ -278,7 +305,12 @@ public class RobotContainer {
     keyMap.get(Input.RAISE_ELBOW).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
           m_stinger.setElbow(ElbowDirection.RAISE);
-        }, m_stinger)))
+        }, m_stinger))
+      // .unless(() -> {
+      //   return m_stinger.m_elbowEncoder.getPosition() > 51
+      //       && m_stinger.isShoulderDown();
+      // })
+      )
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setElbow(ElbowDirection.STOP);
           m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
@@ -298,7 +330,14 @@ public class RobotContainer {
     keyMap.get(Input.EXTEND_STINGER).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
           m_stinger.setExtend(StingerDirection.EXTEND);
-        }, m_stinger)))
+        }, m_stinger))
+      // .unless(() -> {
+      //   return (m_stinger.m_elbowEncoder.getPosition() > 55
+      //       && !m_stinger)
+      //       && m_stinger.m_extendEncoder.getPosition() > 650
+      //       && m_stinger.isShoulderDown();
+      // })
+      )
       .whileFalse(new InstantCommand(() -> {
           m_stinger.setExtend(StingerDirection.STOP);
           m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
@@ -315,11 +354,15 @@ public class RobotContainer {
         new ElbowToPosition(m_stinger, 41.8),
         new ExtendToPosition(m_stinger, 72)
       ));
+    
+    keyMap.get(Input.PRECISE_TURNING).button
+      .onTrue(new InstantCommand(() -> { m_driveTrain.m_preciseTurning = true; }))
+      .onFalse(new InstantCommand(() -> { m_driveTrain.m_preciseTurning = false; }));
 
     keyMap.get(Input.TARGET_MID).button
       .onTrue(
         new ToggleLight(true)
-          .andThen(new WaitCommand(0.5))
+          .andThen(new WaitCommand(0.125))
           .andThen(new TargetPegPID(m_driveTrain, true, false))
         .until(() -> { return m_flightStick.getMagnitude() > 0.1; })
         .andThen(new ToggleLight(false))
@@ -425,14 +468,13 @@ public class RobotContainer {
     //   }));
 
     keyMap.get(Input.SCORE_MID).button
-      .onTrue(new SequentialCommandGroup(
-      new InstantCommand(() -> {
-        m_stinger.setShoulder(ShoulderState.RAISED);
-      }, m_stinger),
-      new ElbowToPosition(m_stinger, 41.6),
-      new ExtendToPosition(m_stinger, 605)
-    ));
-
+      .onTrue(
+        (new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.RAISED); })
+          .andThen(new ElbowToPosition(m_stinger, 41.6))
+          .andThen(new ExtendToPosition(m_stinger, 605)))
+        // .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; })
+      );
+    
     keyMap.get(Input.SCORE_HIGH).button
       .onTrue(new SequentialCommandGroup(
         new ElbowToPosition(m_stinger, 78.5)

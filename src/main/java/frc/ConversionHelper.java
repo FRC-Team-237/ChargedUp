@@ -89,4 +89,12 @@ public class ConversionHelper {
   public static boolean inPosition(double value1, double value2, double deadband) {
     return Math.abs(value1 - value2) < deadband;
   }
+
+  public static double clamp(double value, double min, double max) {
+    return Math.max(Math.min(value, max), min);
+  }
+
+  public static double posSqrt(double value) {
+    return Math.signum(value) * Math.sqrt(Math.abs(value));
+  }
 }

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import frc.ConversionHelper;
 import frc.robot.subsystems.DriveTrain;
 
 public class AutoBalance extends PIDCommand {
@@ -23,9 +24,10 @@ public class AutoBalance extends PIDCommand {
     );
 
     m_drive = drive;
-
+    m_drive.setScale(0.25);
+    
     getController().enableContinuousInput(-180, 180);
-    getController().setTolerance(deadband,4);
+    getController().setTolerance(deadband, 4);
     
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -45,8 +47,16 @@ public class AutoBalance extends PIDCommand {
  
   // Returns true when the command should end.
   @Override
-  public boolean isFinished() 
-  {
+  public boolean isFinished() {
     return false;
+  }
+
+  @Override
+  public void execute() {
+    // TODO Auto-generated method stub
+    double output = getController().calculate(m_drive.getPitch()); 
+    output = ConversionHelper.clamp(output, -0.3, 0.3);
+    m_drive.driveRaw(0.0, output);
+
   }
 }
