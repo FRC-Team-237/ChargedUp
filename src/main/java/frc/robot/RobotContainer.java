@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -47,6 +48,7 @@ import frc.robot.subsystems.Stinger.GrabberState;
 import frc.robot.subsystems.Stinger.ShoulderState;
 import frc.robot.subsystems.Stinger.StingerDirection;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
@@ -261,9 +263,12 @@ public class RobotContainer {
     }));
 
     keyMap.get(Input.TOGGLE_SHOULDER).button
-      .onTrue(new InstantCommand(() -> {
+      .onTrue(new ConditionalCommand(
+        new DrivePosition(m_stinger, m_pincher), 
+       new InstantCommand(() -> {
         m_stinger.toggleShoulder();
-      }, m_stinger)
+      }, m_stinger), ()-> {return m_stinger.m_elbowEncoder.getPosition() > 65;})
+        
       // .unless(() -> {
       //   return m_stinger.m_extendEncoder.getPosition() > 650 && m_stinger.m_elbowEncoder.getPosition() > 65;
       // })
