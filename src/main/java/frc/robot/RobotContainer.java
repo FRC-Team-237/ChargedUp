@@ -36,6 +36,8 @@ import frc.robot.commands.TargetPegPID;
 import frc.robot.commands.ToggleLight;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.autonomous.AutoScoreCommand;
+import frc.robot.commands.autonomous.BackwardsBalance;
+import frc.robot.commands.autonomous.JustBalanceCommand;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.subsystems.Pincher;
@@ -71,7 +73,7 @@ public class RobotContainer {
   public static Joystick panel = new Joystick(1);
   public static Joystick m_arcadePanel = new Joystick(0);
 
-  private DriveTrain m_driveTrain;
+  public DriveTrain m_driveTrain;
   private Pincher m_pincher;
   public Stinger m_stinger;
 
@@ -247,7 +249,7 @@ public class RobotContainer {
     // }, m_stinger));
 
     keyMap.get(Input.AUTO_BALANCE).button
-      .whileTrue(new AutoBalance(m_driveTrain, 0.0175, 0, 0, 5));
+      .whileTrue(new AutoBalance(m_driveTrain, 0.0175, 0, 0, 5, 0));
 
     keyMap.get(Input.TOGGLE_BRAKES).button
       .onTrue(new InstantCommand(() -> {
@@ -611,7 +613,9 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new AutoScoreCommand(m_driveTrain, m_stinger, m_pincher);
+    // return new AutoScoreCommand(m_driveTrain, m_stinger, m_pincher);
+    // return new JustBalanceCommand(m_driveTrain);
+    return new BackwardsBalance(m_driveTrain);
   }
 }
 

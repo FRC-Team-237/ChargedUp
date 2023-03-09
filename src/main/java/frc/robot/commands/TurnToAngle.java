@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.DriveTrain;
 
@@ -12,8 +14,11 @@ import frc.robot.subsystems.DriveTrain;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TurnToAngle extends PIDCommand {
+
+  private Debouncer angleDebouncer;
+
   /** Creates a new TurnToAngle. */
-  public TurnToAngle(double targetAngle,DriveTrain vroomVroom,double p,double i,double d,double deadband) {
+  public TurnToAngle(double targetAngle,DriveTrain vroomVroom,double p,double i,double d,double deadband, double power, double secondsToTerminate) {
     super(
         // The controller that the command will use
         new PIDController(p, i, d),
@@ -23,12 +28,12 @@ public class TurnToAngle extends PIDCommand {
         // This should return the setpoint (can also be a constant)
       
         // This uses the output
-        output -> {vroomVroom.driveRaw(-output, 0);
-          // Use the output here
-        });
+        output -> { vroomVroom.driveRaw(-output * 1, 0); });
         getController().enableContinuousInput(-180, 180);
-        getController().setTolerance(deadband, 4);
-      
+        getController().setTolerance(deadband, deadband);
+    
+    angleDebouncer = new Debouncer(secondsToTerminate, DebounceType.kBoth);
+    
     // Use addRequirements() here to declare subsystem dependencies.
     // Configure additional PID options by calling `getController` here.
   }
@@ -36,6 +41,7 @@ public class TurnToAngle extends PIDCommand {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return getController().atSetpoint();
+    return angleDebouncer.calculate(getController().atSetpoint());
+    // return getController().atSetpoint();
   }
 }

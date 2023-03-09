@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    m_robotContainer.m_driveTrain.disableMotorBreak();
     m_robotContainer.resetOdometry();
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
   }
@@ -88,6 +89,8 @@ public class Robot extends TimedRobot {
     } else {
       NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
     }
+
+    m_robotContainer.m_driveTrain.disableMotorBreak();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
