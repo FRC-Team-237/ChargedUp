@@ -309,21 +309,30 @@ public class RobotContainer {
           m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
           m_stinger.enableElbowClosedLoop();
         }));
-
+        
     keyMap.get(Input.RAISE_ELBOW).button
-      .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-          m_stinger.setElbow(ElbowDirection.RAISE);
-        }, m_stinger))
-      // .unless(() -> {
-      //   return m_stinger.m_elbowEncoder.getPosition() > 51
-      //       && m_stinger.isShoulderDown();
-      // })
-      )
-      .whileFalse(new InstantCommand(() -> {
-          m_stinger.setElbow(ElbowDirection.STOP);
-          m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
-          m_stinger.enableElbowClosedLoop();
-        }));
+      .onTrue(new InstantCommand(() -> { m_stinger.setElbow(ElbowDirection.RAISE); }))
+      .onFalse(new InstantCommand(() -> {
+        m_stinger.setElbow(ElbowDirection.STOP);
+        m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
+        m_stinger.enableElbowClosedLoop();
+      }));
+
+    // keyMap.get(Input.RAISE_ELBOW).button
+    //   .whileTrue(new RepeatCommand(new InstantCommand(() -> {
+    //       m_stinger.setElbow(ElbowDirection.RAISE);
+    //     }, m_stinger))
+    //     .unless(() -> { return !m_stinger.isShoulderDown() && m_stinger.m_elbowEncoder.getPosition() > 60; })
+    //   // .unless(() -> {
+    //   //   return m_stinger.m_elbowEncoder.getPosition() > 51
+    //   //       && m_stinger.isShoulderDown();
+    //   // })
+    //   )
+    //   .whileFalse(new InstantCommand(() -> {
+    //       m_stinger.setElbow(ElbowDirection.STOP);
+    //       m_stinger.setElbowSetPoint(m_stinger.m_elbowEncoder.getPosition());
+    //       m_stinger.enableElbowClosedLoop();
+    //     }));
 
     keyMap.get(Input.RETRACT_STINGER).button
       .whileTrue(new RepeatCommand(new InstantCommand(() -> {
@@ -334,23 +343,32 @@ public class RobotContainer {
           m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
           m_stinger.enableExtendClosedLoop();
         }));
-
+    
     keyMap.get(Input.EXTEND_STINGER).button
-      .whileTrue(new RepeatCommand(new InstantCommand(() -> {
-          m_stinger.setExtend(StingerDirection.EXTEND);
-        }, m_stinger))
-      // .unless(() -> {
-      //   return (m_stinger.m_elbowEncoder.getPosition() > 55
-      //       && !m_stinger)
-      //       && m_stinger.m_extendEncoder.getPosition() > 650
-      //       && m_stinger.isShoulderDown();
-      // })
-      )
-      .whileFalse(new InstantCommand(() -> {
-          m_stinger.setExtend(StingerDirection.STOP);
-          m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
-          m_stinger.enableExtendClosedLoop();
-        }));
+      .onTrue(new InstantCommand(() -> { m_stinger.setExtend(StingerDirection.EXTEND); }))
+      .onFalse(new InstantCommand(() -> {
+        m_stinger.setExtend(StingerDirection.STOP);
+        m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
+        m_stinger.enableExtendClosedLoop();
+      }));
+
+    // keyMap.get(Input.EXTEND_STINGER).button
+    //   .whileTrue(new RepeatCommand(new InstantCommand(() -> {
+    //       m_stinger.setExtend(StingerDirection.EXTEND);
+    //     }, m_stinger))
+    //   .unless(() -> { return m_stinger.m_extendEncoder.getPosition() > 700; })
+    //   // .unless(() -> {
+    //   //   return (m_stinger.m_elbowEncoder.getPosition() > 55
+    //   //       && !m_stinger)
+    //   //       && m_stinger.m_extendEncoder.getPosition() > 650
+    //   //       && m_stinger.isShoulderDown();
+    //   // })
+    //   )
+    //   .whileFalse(new InstantCommand(() -> {
+    //       m_stinger.setExtend(StingerDirection.STOP);
+    //       m_stinger.setExtendSetPoint(m_stinger.m_extendEncoder.getPosition());
+    //       m_stinger.enableExtendClosedLoop();
+    //     }));
 
     // keyMap.get(Input.ENABLE_EXTEND_CLOSED_LOOP).button
     //   .whileTrue(new ElbowToPosition(m_stinger, 16));

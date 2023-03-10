@@ -59,6 +59,9 @@ public class Stinger extends SubsystemBase {
   public double kExtendSetpoint;
   public double kElbowSetpoint;
 
+  private ElbowDirection elbowDirection;
+  private StingerDirection stingerDirection;
+
   private ShuffleboardTab tab = Shuffleboard.getTab("PID Testing");
   private GenericEntry extendPEntry = tab.add("Pickup Extend P", 0.8).getEntry();
   private GenericEntry extendIEntry = tab.add("Pickup Extend I", 1e-4).getEntry();
@@ -218,6 +221,14 @@ public class Stinger extends SubsystemBase {
       m_elbowController.setOutputRange(kElbowMin, kElbowMax);
     }
     
+    if(!isShoulderDown() && m_elbowEncoder.getPosition() > 60 && elbowDirection == ElbowDirection.RAISE) {
+      setElbow(ElbowDirection.STOP);
+    }
+
+    if(m_extendEncoder.getPosition() > 700 && stingerDirection == StingerDirection.EXTEND) {
+      setExtend(StingerDirection.STOP);
+    }
+
     // kExtendSetpoint = extendSetPointEntry.getDouble(0);
     // kElbowSetpoint = elbowSetPointEntry.getDouble(0);
 
@@ -275,6 +286,7 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setElbow(ElbowDirection direction) {
+    elbowDirection = direction;
     m_elbowSpark.set(direction == ElbowDirection.STOP ? 0
       : direction == ElbowDirection.LOWER ? -elbowSpeed : elbowSpeed);
   }
@@ -284,6 +296,7 @@ public class Stinger extends SubsystemBase {
   }
 
   public void setExtend(StingerDirection direction) {
+    stingerDirection = direction;
     m_extendSpark.set(
       ConversionHelper.clamp(
       direction == StingerDirection.STOP ? 0

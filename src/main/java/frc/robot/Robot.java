@@ -84,11 +84,12 @@ public class Robot extends TimedRobot {
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
     Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
     Leds.getInstance().resetColor();
-    if (m_isRedAlliance) {
-      NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
-    } else {
-      NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
-    }
+    // if (m_isRedAlliance) {
+    //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+    // } else {
+    //   NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(1);
+    // }
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
 
     m_robotContainer.m_driveTrain.disableMotorBreak();
 
