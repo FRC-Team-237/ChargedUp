@@ -52,7 +52,7 @@ public class AutoBalance extends PIDCommand {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return balanceDebouncer.calculate(Math.abs(m_drive.getPitch() - target) < 0.5);
+    return balanceDebouncer.calculate(Math.abs(m_drive.getPitch() - target) < 1);
   }
 
   @Override
@@ -61,6 +61,5 @@ public class AutoBalance extends PIDCommand {
     double output = getController().calculate(m_drive.getPitch() - target);
     output = ConversionHelper.clamp(output, -0.15, 0.15);
     m_drive.driveRaw(0.0, output);
-    System.out.println("\tDIFFERENCE: " + (m_drive.getPitch() - target));
   }
 }

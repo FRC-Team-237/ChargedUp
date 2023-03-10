@@ -132,8 +132,8 @@ public class Stinger extends SubsystemBase {
     // tab.add("Pickup Elbow position", 16);
   }
 
-  private double elbowSpeed = 0.0;
-  private double extendSpeed = 0.0;
+  public double elbowSpeed = 0.0;
+  public double extendSpeed = 0.0;
 
   @Override
   public void periodic() {

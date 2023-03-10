@@ -28,13 +28,24 @@ public class BackwardsBalance extends CommandBase {
   public void initialize() {
     new AutoDriveCommand(driveTrain, 1000, 0.75)
       .andThen(new AutoDriveCommand(driveTrain, -20000, 0.75)
-      .andThen(new AutoDriveCommand(driveTrain, -10000, 0.35))
-      .andThen(new InstantCommand(() -> { rampAngle = driveTrain.getPitch(); }))
+      
+      .andThen(new InstantCommand(() -> { System.out.println("\t---JUMPED---"); }))
+      
+      .andThen(new AutoDriveCommand(driveTrain, -10000, 0.75))
+      .andThen(new AutoDriveCommand(driveTrain, -5000, 0.75))
+
+      .andThen(new InstantCommand(() -> { System.out.println("\t---STARTED CLIMB---"); }))
+
+      .andThen(new InstantCommand(() -> { rampAngle = driveTrain.getPitch(); System.out.println("\t---CAPTURED ANGLE---"); }))
+      
       .andThen(
-        new InstantCommand(() -> { driveTrain.driveRaw(0, -0.35); })
+        new AutoDriveCommand(driveTrain, -10000, 0.75)
           .until(() -> { return Math.abs(driveTrain.getPitch() - rampAngle) > 4; })
       )
-      .andThen(new AutoDriveCommand(driveTrain, -4500, 0.2))
+
+      .andThen(new AutoDriveCommand(driveTrain, -4500, 0.3))
+      
+      .andThen(new InstantCommand(() -> { System.out.println("\t---JUMPED BACK---"); }))
       .andThen(new WaitCommand(0.25))
       .andThen(new AutoBalance(driveTrain, 0.025, 0.0005, 0.001, 5, 0))
     ).schedule();
