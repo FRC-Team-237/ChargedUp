@@ -37,6 +37,7 @@ import frc.robot.commands.ToggleLight;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.autonomous.AutoScoreCommand;
 import frc.robot.commands.autonomous.BackwardsBalance;
+import frc.robot.commands.autonomous.BackwardsBalance2;
 import frc.robot.commands.autonomous.JustBalanceCommand;
 import frc.robot.commands.autonomous.MidThenBalance;
 import frc.robot.subsystems.DriveTrain;
@@ -635,7 +636,9 @@ public class RobotContainer {
     // return new AutoScoreCommand(m_driveTrain, m_stinger, m_pincher);
     // return new JustBalanceCommand(m_driveTrain);
     // return new BackwardsBalance(m_driveTrain);
-    return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
+    // return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
+    // return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
+    return new BackwardsBalance2(m_driveTrain);
   }
 }
 
