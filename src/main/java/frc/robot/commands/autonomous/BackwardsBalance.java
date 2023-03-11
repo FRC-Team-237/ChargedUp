@@ -27,22 +27,13 @@ public class BackwardsBalance extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    new AutoDriveCommand(driveTrain, 1000, 0.75)
-      .andThen(new AutoDriveCommand(driveTrain, -20000, 0.75)
-      
+    new AutoDriveCommand(driveTrain, -20000, 0.75)
       .andThen(new AutoDriveCommand(driveTrain, -10000, 0.35))
       .andThen(new AutoDriveCommand(driveTrain, -50000, 0.35))
-
-      .andThen(new InstantCommand(() -> { angleSign = Math.signum(driveTrain.getPitch()); }))
-      .andThen(
-        new RepeatCommand(new InstantCommand(() -> { driveTrain.driveRaw(0, -0.75); }))
-      ).until(() -> { return Math.signum(driveTrain.getPitch()) != angleSign; })
-
       .andThen(new AutoDriveCommand(driveTrain, 4500, 0.3))
-      
       .andThen(new WaitCommand(0.25))
       .andThen(new AutoBalance(driveTrain, 0.025, 0.0005, 0.001, 5, 0))
-    ).schedule();
+    .schedule();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

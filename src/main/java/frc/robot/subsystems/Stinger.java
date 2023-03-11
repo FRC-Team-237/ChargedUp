@@ -120,8 +120,6 @@ public class Stinger extends SubsystemBase {
     m_shoulderState = m_stingerSolenoid.get() ? ShoulderState.RAISED : ShoulderState.LOWERED;
     m_grabberState = m_grabberSolenoid.get() ? GrabberState.PINCH : GrabberState.DROP;
 
-    m_extendSpark.getEncoder().setPosition(0.0);
-    m_elbowSpark.getEncoder().setPosition(0.0);
     SmartDashboard.putNumber("Elbow Speed", 0.25);
     SmartDashboard.putNumber("Extend Speed", 0.25);
     SmartDashboard.putData("Zero Encoders", new InstantCommand(() -> {
@@ -132,6 +130,7 @@ public class Stinger extends SubsystemBase {
       m_extendSpark.getEncoder().setPosition(0);
       setExtendSetPoint(0);
     }));
+    m_elbowEncoder.setPosition(4.20);
     // tab.add("Pickup Elbow position", 16);
   }
 
