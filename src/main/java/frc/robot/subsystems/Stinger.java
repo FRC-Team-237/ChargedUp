@@ -315,7 +315,7 @@ public class Stinger extends SubsystemBase {
 
   public void setShoulder(ShoulderState state) {
     m_shoulderState = state;
-    m_stingerSolenoid.set(state == ShoulderState.LOWERED);
+    m_stingerSolenoid.set(state == ShoulderState.RAISED);
   }
 
   public void toggleShoulder() {

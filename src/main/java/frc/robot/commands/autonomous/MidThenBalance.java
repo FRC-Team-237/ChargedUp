@@ -16,6 +16,7 @@ import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.Pincher.DropState;
 import frc.robot.subsystems.Stinger.GrabberState;
+import frc.robot.subsystems.Stinger.ShoulderState;
 
 public class MidThenBalance extends CommandBase {
   
@@ -36,10 +37,15 @@ public class MidThenBalance extends CommandBase {
   @Override
   public void initialize() {
     new InstantCommand(() -> {
+      stinger.setShoulder(ShoulderState.RAISED);
       stinger.setGrabber(GrabberState.PINCH);
+    })
+    .andThen(new WaitCommand(1))
+    .andThen(
+    new InstantCommand(() -> {
       pincher.setDropper(DropState.LOWERED);
       driveTrain.enableMotorBreak();
-    })
+    }))
     .andThen(new WaitCommand(0.15))
 
     .andThen(new ElbowToPosition(stinger, 38))
@@ -52,7 +58,7 @@ public class MidThenBalance extends CommandBase {
     .andThen(new WaitCommand(0.25))
     .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
 
-    .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3))
+    .andThen(new AutoDriveCommand(driveTrain, -7500, 0.3))
     
     .andThen(new DrivePosition(stinger, pincher))
     .andThen(new AutoDriveCommand(driveTrain, -7500, 0.35))

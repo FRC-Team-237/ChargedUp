@@ -6,6 +6,7 @@ package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
@@ -14,7 +15,7 @@ import frc.robot.subsystems.DriveTrain;
 public class BackwardsBalance extends CommandBase {
 
   DriveTrain driveTrain;
-  private double rampAngle = 0.0;
+  private double angleSign = 0.0;
 
   /** Creates a new BackwardsBalance. */
   public BackwardsBalance(DriveTrain driveTrain) {
@@ -29,23 +30,16 @@ public class BackwardsBalance extends CommandBase {
     new AutoDriveCommand(driveTrain, 1000, 0.75)
       .andThen(new AutoDriveCommand(driveTrain, -20000, 0.75)
       
-      .andThen(new InstantCommand(() -> { System.out.println("\t---JUMPED---"); }))
-      
-      .andThen(new AutoDriveCommand(driveTrain, -10000, 0.75))
-      .andThen(new AutoDriveCommand(driveTrain, -5000, 0.75))
+      .andThen(new AutoDriveCommand(driveTrain, -10000, 0.35))
+      .andThen(new AutoDriveCommand(driveTrain, -50000, 0.35))
 
-      .andThen(new InstantCommand(() -> { System.out.println("\t---STARTED CLIMB---"); }))
-
-      .andThen(new InstantCommand(() -> { rampAngle = driveTrain.getPitch(); System.out.println("\t---CAPTURED ANGLE---"); }))
-      
+      .andThen(new InstantCommand(() -> { angleSign = Math.signum(driveTrain.getPitch()); }))
       .andThen(
-        new AutoDriveCommand(driveTrain, -10000, 0.75)
-          .until(() -> { return Math.abs(driveTrain.getPitch() - rampAngle) > 4; })
-      )
+        new RepeatCommand(new InstantCommand(() -> { driveTrain.driveRaw(0, -0.75); }))
+      ).until(() -> { return Math.signum(driveTrain.getPitch()) != angleSign; })
 
-      .andThen(new AutoDriveCommand(driveTrain, -4500, 0.3))
+      .andThen(new AutoDriveCommand(driveTrain, 4500, 0.3))
       
-      .andThen(new InstantCommand(() -> { System.out.println("\t---JUMPED BACK---"); }))
       .andThen(new WaitCommand(0.25))
       .andThen(new AutoBalance(driveTrain, 0.025, 0.0005, 0.001, 5, 0))
     ).schedule();

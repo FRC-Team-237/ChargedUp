@@ -75,7 +75,7 @@ public class RobotContainer {
   public static Joystick m_arcadePanel = new Joystick(0);
 
   public DriveTrain m_driveTrain;
-  private Pincher m_pincher;
+  public Pincher m_pincher;
   public Stinger m_stinger;
 
   private boolean m_isRedAlliance;
@@ -213,7 +213,7 @@ public class RobotContainer {
     keyMap.put(Input.EXTEND_STINGER,  new InputButton(arcadePanel, "Extend Stinger",  27));
     // keyMap.put(Input.ENABLE_EXTEND_CLOSED_LOOP, new InputButton(arcadePanel, "Enable CLosed Loop", 7));
     keyMap.put(Input.PICKUP_AND_DRIVE_POS, new InputButton(arcadePanel, "Elbow To Close Position Command", 8));
-    keyMap.put(Input.PICKUP_FAR,      new InputButton(arcadePanel, "Elbow To Far Position Command", 6));   
+    keyMap.put(Input.PICKUP_FAR,      new InputButton(arcadePanel, "Shelf", 6));   
     keyMap.put(Input.DRIVE_POSITION,  new InputButton(arcadePanel, "To drive position command", 7));
     // keyMap.put(Input.STOP_LOOPS,      new InputButton(flightStick, "Stops elbow and extend", 0));
     keyMap.put(Input.SCORE_HIGH,      new InputButton(arcadePanel, "Score high", 32));
@@ -377,8 +377,8 @@ public class RobotContainer {
         new InstantCommand(() -> {
           m_stinger.setShoulder(ShoulderState.RAISED);
         }, m_stinger),
-        new ElbowToPosition(m_stinger, 41.8),
-        new ExtendToPosition(m_stinger, 72)
+        new ElbowToPosition(m_stinger, 39),
+        new ExtendToPosition(m_stinger, 0)
       ));
     
     keyMap.get(Input.PRECISE_TURNING).button
@@ -500,7 +500,7 @@ public class RobotContainer {
           .andThen(new ExtendToPosition(m_stinger, 605)))
         // .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; })
       );
-    
+
     keyMap.get(Input.SCORE_HIGH).button
       .onTrue(new SequentialCommandGroup(
         new ElbowToPosition(m_stinger, 78.5)
