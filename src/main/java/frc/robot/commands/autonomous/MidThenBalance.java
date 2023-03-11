@@ -53,7 +53,7 @@ public class MidThenBalance extends CommandBase {
     .andThen(new ElbowToPosition(stinger, 32))
     .andThen(new WaitCommand(0.25))
     .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
-
+    .andThen(new WaitCommand(0.25))
     .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3))
     
     .andThen(new DrivePosition(stinger, pincher))
