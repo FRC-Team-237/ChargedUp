@@ -7,10 +7,12 @@ package frc.robot.commands.autonomous;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
 import frc.robot.commands.DrivePosition;
 import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
+import frc.robot.commands.autonomous.DriveUpRamp.Direction;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
@@ -63,8 +65,8 @@ public class MidThenBalance extends CommandBase {
     .andThen(new DrivePosition(stinger, pincher))
     .andThen(new AutoDriveCommand(driveTrain, -7500, 0.35))
     .andThen(new WaitCommand(0.5))
-    .andThen(new BackwardsBalance(driveTrain))
-
+    .andThen(new DriveUpRamp(driveTrain,Direction.BACK))
+    .andThen(new AutoBalance(driveTrain, 0.025, 0.0005, 0.001, 5, 0))
     .schedule();
 
   }
