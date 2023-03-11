@@ -4,6 +4,7 @@
 
 package frc.robot.commands.autonomous;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
@@ -36,6 +37,7 @@ public class DriveUpRamp extends CommandBase {
     // Capture current pitch and reset state 
     m_startingPitch = m_drive.getPitch(); 
     m_state = States.DRIVE2RAMP; 
+    SmartDashboard.putString("Current Climb State", "Driving to Ramp"); 
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -47,12 +49,14 @@ public class DriveUpRamp extends CommandBase {
       if (Math.abs(m_drive.getPitch() - m_startingPitch) > 8){
         m_startingPitch = m_drive.getPitch(); 
         m_state = States.CLIMB;
+        SmartDashboard.putString("Current Climb State", "Climbing Ramp"); 
       }
       break; 
       case CLIMB:
         m_drive.driveRaw(0, (m_dir == Direction.FORWARD) ? 0.25 : -0.25);
         if(Math.abs(m_drive.getPitch()) < 2) {
           m_state = States.LEVEL; 
+          SmartDashboard.putString("Current Climb State", "LEVEL!!!"); 
         }
         break; 
       case LEVEL:
