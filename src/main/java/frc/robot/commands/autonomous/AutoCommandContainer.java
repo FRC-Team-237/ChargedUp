@@ -104,13 +104,13 @@ public class AutoCommandContainer {
         .andThen(new AutoDriveCommand(driveTrain, -154000, 0.35)); 
     }
 
-    public static Command midThenBallanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher ) {
+    public static Command midThenBalanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher ) {
         return placeCubeMid(driveTrain, stinger, pincher)
         .andThen(new DrivePosition(stinger, pincher))
         .andThen(ballanceCommand(driveTrain)); 
     }
 
-    public static Command highThenBallanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
+    public static Command highThenBalanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
         return placeCubeHighCommand(driveTrain, stinger, pincher)
         .andThen(new DrivePosition(stinger, pincher))
         .andThen(ballanceCommand(driveTrain)); 

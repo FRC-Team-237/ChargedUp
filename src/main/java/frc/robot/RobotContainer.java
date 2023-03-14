@@ -35,11 +35,13 @@ import frc.robot.commands.TargetPeg;
 import frc.robot.commands.TargetPegPID;
 import frc.robot.commands.ToggleLight;
 import frc.robot.commands.TurnToAngle;
+import frc.robot.commands.autonomous.AutoCommandContainer;
 import frc.robot.commands.autonomous.AutoScoreCommand;
 import frc.robot.commands.autonomous.BackwardsBalance;
 import frc.robot.commands.autonomous.BackwardsBalance2;
 import frc.robot.commands.autonomous.JustBalanceCommand;
 import frc.robot.commands.autonomous.MidThenBalance;
+import frc.robot.commands.autonomous.AutoCommandContainer;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.subsystems.Pincher;
@@ -638,7 +640,7 @@ public class RobotContainer {
     // return new BackwardsBalance(m_driveTrain);
     // return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
     // return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
-    return new BackwardsBalance2(m_driveTrain);
+    return AutoCommandContainer.midThenBalanceCommand(m_driveTrain,m_stinger,m_pincher); 
   }
 }
 
