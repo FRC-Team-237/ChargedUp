@@ -23,7 +23,7 @@ import frc.robot.subsystems.Stinger.ShoulderState;
 /** Add your docs here. */
 public class AutoCommandContainer {
 
-    public static Command ballanceCommand(DriveTrain driveTrain)
+    public static Command balanceCommand(DriveTrain driveTrain)
     {
         return new AutoDriveCommand(driveTrain, -35000, 0.75)
         // .andThen(new AutoDriveCommand(driveTrain, -35000, 0.75))
@@ -107,13 +107,13 @@ public class AutoCommandContainer {
     public static Command midThenBalanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher ) {
         return placeCubeMid(driveTrain, stinger, pincher)
         .andThen(new DrivePosition(stinger, pincher))
-        .andThen(ballanceCommand(driveTrain)); 
+        .andThen(balanceCommand(driveTrain)); 
     }
 
     public static Command highThenBalanceCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
         return placeCubeHighCommand(driveTrain, stinger, pincher)
         .andThen(new DrivePosition(stinger, pincher))
-        .andThen(ballanceCommand(driveTrain)); 
+        .andThen(balanceCommand(driveTrain)); 
     }
     
 }
