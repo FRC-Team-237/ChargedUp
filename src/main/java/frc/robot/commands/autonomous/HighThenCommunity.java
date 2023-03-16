@@ -10,9 +10,13 @@ import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
 
 public class HighThenCommunity extends CommandBase {
+
+  DriveTrain driveTrain;
+  Stinger stinger;
+  Pincher pincher;
   /** Creates a new HighThenCommunity. */
   public HighThenCommunity(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
-    // Use addRequirements() here to declare subsystem dependencies.
+        
   }
 
   // Called when the command is initially scheduled.

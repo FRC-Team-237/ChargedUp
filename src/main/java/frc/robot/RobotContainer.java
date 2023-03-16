@@ -40,6 +40,7 @@ import frc.robot.commands.autonomous.BackwardsBalance;
 import frc.robot.commands.autonomous.BackwardsBalance2;
 import frc.robot.commands.autonomous.JustBalanceCommand;
 import frc.robot.commands.autonomous.MidThenBalance;
+import frc.robot.commands.autonomous.MidThenCommunity;
 import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.subsystems.Pincher;
@@ -377,6 +378,7 @@ public class RobotContainer {
       .onTrue(new SequentialCommandGroup(
         new InstantCommand(() -> {
           m_stinger.setShoulder(ShoulderState.RAISED);
+          m_pincher.setDropper(DropState.RAISED);
         }, m_stinger),
         new ElbowToPosition(m_stinger, 39),
         new ExtendToPosition(m_stinger, 0)
@@ -637,9 +639,60 @@ public class RobotContainer {
     // return new JustBalanceCommand(m_driveTrain);
     // return new BackwardsBalance(m_driveTrain);
     // return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
-    // return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
-    return new BackwardsBalance2(m_driveTrain);
+
+    // return highThenCommunity();
+     return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
+    // return new BackwardsBalance2(m_driveTrain, m_stinger);
   }
+
+public Command highThenCommunity() {
+  return new InstantCommand(() -> {
+    m_stinger.setGrabber(GrabberState.PINCH);
+    m_pincher.setDropper(DropState.LOWERED);
+    m_stinger.setShoulder(ShoulderState.RAISED);
+    m_driveTrain.enableMotorBreak();
+  })
+  .andThen(new WaitCommand(1))
+  .andThen(new ElbowToPosition(m_stinger, 78.5))
+  .andThen(new ExtendToPosition(m_stinger, 335))
+  .andThen(new WaitCommand(2))
+  .andThen(new InstantCommand(() -> {
+    m_stinger.setShoulder(ShoulderState.LOWERED);
+    m_pincher.setDropper(DropState.RAISED);
+  }));
+  // .andThen(new DrivePosition(m_stinger, m_pincher))
+  // .andThen(new AutoDriveCommand(m_driveTrain, -160000, 0.35));
 }
 
+public Command highThenBalance() {
+  return new InstantCommand(() -> {
+    m_stinger.setGrabber(GrabberState.PINCH);
+    m_pincher.setDropper(DropState.LOWERED);
+  })
+  .andThen(new WaitCommand(1))
+  .andThen(
+  new InstantCommand(() -> {
+    m_driveTrain.enableMotorBreak();
+  }))
+  .andThen(new WaitCommand(0.15))
+  // move to scoring Position 
+  .andThen(new ElbowToPosition(m_stinger, 75))
+  .andThen(new ExtendToPosition(m_stinger, 605))
+  .andThen(new WaitCommand(0.2))
+  .andThen(new InstantCommand(() -> { m_pincher.setDropper(DropState.RAISED); }))
 
+  .andThen(new WaitCommand(1.2))
+  .andThen(new ElbowToPosition(m_stinger, 70))
+  .andThen(new WaitCommand(0.25))
+  .andThen(new InstantCommand(() -> { m_stinger.setGrabber(GrabberState.DROP); }))
+
+  .andThen(new WaitCommand(0.25))
+  .andThen(new AutoDriveCommand(m_driveTrain, -5000, 0.3))
+  
+  .andThen(new DrivePosition(m_stinger, m_pincher))
+  .andThen(new AutoDriveCommand(m_driveTrain, -7500, 0.35))
+  .andThen(new WaitCommand(0.5))
+  .andThen(new BackwardsBalance2(m_driveTrain, m_stinger)); 
+
+}
+}
