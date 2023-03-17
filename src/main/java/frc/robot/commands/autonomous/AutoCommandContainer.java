@@ -22,19 +22,38 @@ import frc.robot.subsystems.Stinger.ShoulderState;
 
 /** Add your docs here. */
 public class AutoCommandContainer {
-
-    public static Command balanceCommand(DriveTrain driveTrain)
-    {
-        return new AutoDriveCommand(driveTrain, -35000, 0.75)
-        // .andThen(new AutoDriveCommand(driveTrain, -35000, 0.75))
-        .andThen(new AutoDriveCommand(driveTrain, -50000, 0.35))
-        .andThen(new RepeatCommand(new InstantCommand(() -> { driveTrain.driveRaw(0, -0.25); }))
-          .until(() -> { return driveTrain.getPitch() > 0; }))
-        // .andThen(new AutoDriveCommand(driveTrain, 4500, 0.25))
-        .andThen(new AutoBalance(driveTrain, 0.021, 0.0005, 0.025, 10, 0));
+    private static AutoCommandContainer m_container = null; 
+    public static AutoCommandContainer getInstance() {
+      if (m_container == null) {
+        m_container = new AutoCommandContainer(); 
+      }
+      return m_container;
     }
-    public static Command placeCubeMid(DriveTrain driveTrain, Stinger stinger, Pincher pincher)
-    {
+
+    double angleSign;
+
+    private AutoCommandContainer(){}
+    public static Command balanceCommand(DriveTrain driveTrain) {
+        return new AutoDriveCommand(driveTrain, 1000, 0.75)
+          .andThen(new AutoDriveCommand(driveTrain, -35000, 0.75))
+          .andThen(new AutoDriveCommand(driveTrain, -40000, 0.35))
+          .andThen(new InstantCommand(() -> { AutoCommandContainer.getInstance().angleSign = Math.signum(driveTrain.getPitch()); }))
+          .andThen(new RepeatCommand(new InstantCommand(() -> { driveTrain.driveRaw(0, 0.25); }))
+            .until(() -> {
+              double angleSign = AutoCommandContainer.getInstance().angleSign;
+              if(angleSign < 0) {
+                return driveTrain.getPitch() > -8;
+              } else if(angleSign > 0) {
+                return driveTrain.getPitch() < 8;
+              }
+              return false;
+              // return Math.signum(driveTrain.getPitch()) != AutoCommandContainer.getInstance().angleSign;
+            }))
+          .andThen(new AutoDriveCommand(driveTrain, 5500, 0.25))
+          .andThen(new AutoBalance(driveTrain, 0.021, 0.0005, 0.025, 10, 0));
+    }
+
+    public static Command placeCubeMid(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
         return new InstantCommand(() -> {
             stinger.setShoulder(ShoulderState.RAISED);
             stinger.setGrabber(GrabberState.PINCH);
@@ -60,32 +79,49 @@ public class AutoCommandContainer {
           .andThen(new WaitCommand(0.25))
           .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3)); 
     }
+
     public static Command placeCubeHighCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher){
         return new InstantCommand(() -> {
-            stinger.setShoulder(ShoulderState.RAISED);
             stinger.setGrabber(GrabberState.PINCH);
             pincher.setDropper(DropState.LOWERED);
-          })
-          .andThen(new WaitCommand(1))
-          .andThen(
-          new InstantCommand(() -> {
             driveTrain.enableMotorBreak();
-          }))
-          .andThen(new WaitCommand(0.15))
-      
+          })
+          .andThen(new WaitCommand(0.1))
+
+          .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.RAISED); }))
+
+          .andThen(new WaitCommand(0.5))
+
+          .andThen(new ElbowToPosition(stinger, 40))
+          .andThen(new ExtendToPosition(stinger, 200))
+
+          .andThen(new WaitCommand(0.65))
+
+          .andThen(new InstantCommand(() -> { pincher.setDropper(DropState.RAISED); }))
+
+          .andThen(new WaitCommand(0.4))
+          
           .andThen(new ElbowToPosition(stinger, 78.5))
           .andThen(new ExtendToPosition(stinger, 335))
-          .andThen(new WaitCommand(0.2))
-          .andThen(new InstantCommand(() -> { pincher.setDropper(DropState.RAISED); }))
-      
-          .andThen(new WaitCommand(1.2))
+          .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.LOWERED); }))
+          .andThen(new WaitCommand(1.8))
+
           .andThen(new ElbowToPosition(stinger, 68))
-          .andThen(new WaitCommand(0.25))
+          .andThen(new WaitCommand(0.2))
           .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
+          .andThen(new WaitCommand(0.2))
+          .andThen(new ElbowToPosition(stinger, 75))
+          .andThen(new ExtendToPosition(stinger, 200))
       
-          .andThen(new WaitCommand(0.25))
-          .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3)); 
+          .andThen(new WaitCommand(0.5))
+
+          .andThen(new AutoDriveCommand(driveTrain, -12500, 0.4))
+          .andThen(new WaitCommand(1))
+          .andThen(new DrivePosition(stinger, pincher));
+          // .andThen(new WaitCommand(0.25))
+          // .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3));
     }
+
     public static Command midThenCommunityCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher ) {
         return placeCubeMid(driveTrain,stinger,pincher)
           .andThen(new DrivePosition(stinger, pincher))

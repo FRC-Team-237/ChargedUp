@@ -83,6 +83,9 @@ public class RobotContainer {
 
   private boolean m_isRedAlliance;
 
+  private double m_driveSetpoint;
+  private double m_driveActual;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -119,11 +122,14 @@ public class RobotContainer {
     m_driveTrain.setDefaultCommand(
       new RunCommand(
         () -> {
+          m_driveSetpoint = m_flightStick.getY();
+          m_driveActual += (m_driveSetpoint - m_driveActual) * 0.5;
+
           m_driveTrain.drive(
             m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getX())
             : m_flightStick.getX(),
             m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getY())
-            : m_flightStick.getY());
+            : m_driveActual);
           m_driveTrain.setScale(
             m_driveTrain.m_preciseTurning ? 0.15
             : ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .25, 0.75));
@@ -641,7 +647,10 @@ public class RobotContainer {
     // return new BackwardsBalance(m_driveTrain);
     // return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
     // return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
-    return AutoCommandContainer.midThenBalanceCommand(m_driveTrain,m_stinger,m_pincher); 
+    // return AutoCommandContainer.midThenBalanceCommand(m_driveTrain,m_stinger,m_pincher); 
+    // return AutoCommandContainer.balanceCommand(m_driveTrain);
+    return AutoCommandContainer.placeCubeHighCommand(m_driveTrain, m_stinger, m_pincher)
+      .andThen(AutoCommandContainer.balanceCommand(m_driveTrain));
   }
 
 public Command highThenCommunity() {

@@ -19,10 +19,10 @@ public class DrivePosition extends CommandBase {
 
     @Override
     public void initialize() {
-      m_stinger.setShoulder(ShoulderState.RAISED);
+      m_stinger.setShoulder(ShoulderState.LOWERED);
       m_pincher.setDropper(DropState.RAISED);
       m_stinger.setExtendSetPoint(25);
-      m_stinger.setElbowSetPoint(16.85);
+      m_stinger.setElbowSetPoint(21);
       m_stinger.enableElbowClosedLoop();
       m_stinger.enableExtendClosedLoop();
     }

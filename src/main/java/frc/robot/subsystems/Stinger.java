@@ -121,7 +121,7 @@ public class Stinger extends SubsystemBase {
     m_grabberState = m_grabberSolenoid.get() ? GrabberState.PINCH : GrabberState.DROP;
 
     SmartDashboard.putNumber("Elbow Speed", 0.25);
-    SmartDashboard.putNumber("Extend Speed", 0.25);
+    SmartDashboard.putNumber("Extend Speed", 0.6);
     SmartDashboard.putData("Zero Encoders", new InstantCommand(() -> {
       stopElbow();
       stopExtend();
@@ -130,7 +130,7 @@ public class Stinger extends SubsystemBase {
       m_extendSpark.getEncoder().setPosition(0);
       setExtendSetPoint(0);
     }));
-    m_elbowEncoder.setPosition(4.20);
+    m_elbowEncoder.setPosition(3.92);
     // tab.add("Pickup Elbow position", 16);
   }
 
@@ -141,7 +141,7 @@ public class Stinger extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     elbowSpeed = SmartDashboard.getNumber("Elbow Speed", 0.25);
-    extendSpeed = SmartDashboard.getNumber("Extend Speed", 0.25);
+    extendSpeed = SmartDashboard.getNumber("Extend Speed", 0.6);
 
     // double p = SmartDashboard.getNumber("Pickup elbow p", 0);
     // double i = SmartDashboard.getNumber("Pickup elbow i", 0);
