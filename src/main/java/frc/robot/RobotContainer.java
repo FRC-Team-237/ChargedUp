@@ -49,6 +49,7 @@ import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.TalonRamseteControllerAbstraction;
 import frc.robot.subsystems.Pincher.DropState;
 import frc.robot.subsystems.Pincher.PinchState;
+import frc.robot.subsystems.Pincher.PullState;
 import frc.robot.subsystems.Stinger.ElbowDirection;
 import frc.robot.subsystems.Stinger.GrabberState;
 import frc.robot.subsystems.Stinger.ShoulderState;
@@ -123,7 +124,7 @@ public class RobotContainer {
       new RunCommand(
         () -> {
           m_driveSetpoint = m_flightStick.getY();
-          m_driveActual += (m_driveSetpoint - m_driveActual) * 0.5;
+          m_driveActual += (m_driveSetpoint - m_driveActual) * 1.0; // Smoothing factor 0...1
 
           m_driveTrain.drive(
             m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getX())
@@ -303,10 +304,12 @@ public class RobotContainer {
       .onTrue(new InstantCommand(() -> {
         if(!PickupPosition.isRunning)
           m_pincher.setPincher(PinchState.CLOSED);
+          m_pincher.setPull(PullState.PULL);
       }))
       .onFalse(new InstantCommand(() -> {
         if(!PickupPosition.isRunning)
           m_pincher.setPincher(PinchState.OPEN);
+          m_pincher.setPull(PullState.STOP);
       }));
     
     keyMap.get(Input.LOWER_ELBOW).button
@@ -503,23 +506,37 @@ public class RobotContainer {
     //     m_stinger.stopExtend();
     //   }));
 
+    // keyMap.get(Input.SCORE_MID).button
+    //   .onTrue(
+    //     (new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.LOWERED); })
+    //       .andThen(new ElbowToPosition(m_stinger, 41.6))
+    //       .andThen(new ExtendToPosition(m_stinger, 605)))
+    //     // .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; })
+    //   );
+
     keyMap.get(Input.SCORE_MID).button
       .onTrue(
-        (new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.RAISED); })
-          .andThen(new ElbowToPosition(m_stinger, 41.6))
-          .andThen(new ExtendToPosition(m_stinger, 605)))
-        // .unless(() -> { return m_pincher.m_dropState == DropState.RAISED; })
-      );
+        new ExtendToPosition(m_stinger, 0)
+        .andThen(new RepeatCommand(new ElbowToPosition(m_stinger, 67))
+        .until(() -> { return m_stinger.m_elbowEncoder.getPosition() > 35; }))
+        .andThen(new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.LOWERED); }))
+        );
 
     keyMap.get(Input.SCORE_HIGH).button
-      .onTrue(new SequentialCommandGroup(
-        new ElbowToPosition(m_stinger, 78.5)
-          .andThen(new WaitCommand(0.125))
-          .andThen(new InstantCommand(() -> {
-              m_stinger.setShoulder(ShoulderState.LOWERED);
-            }, m_stinger),
-            new ExtendToPosition(m_stinger, 335))
-      ));
+      .onTrue(new RepeatCommand(new ElbowToPosition(m_stinger, 78.5))
+      .until(() -> { return m_stinger.m_elbowEncoder.getPosition() > 35; })
+      .andThen(new ExtendToPosition(m_stinger, 335))
+      .andThen(new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.LOWERED); })));
+
+    // keyMap.get(Input.SCORE_HIGH).button
+    //   .onTrue(new SequentialCommandGroup(
+    //     new ElbowToPosition(m_stinger, 78.5)
+    //       .andThen(new WaitCommand(0.125))
+    //       .andThen(new InstantCommand(() -> {
+    //           m_stinger.setShoulder(ShoulderState.LOWERED);
+    //         }, m_stinger),
+    //         new ExtendToPosition(m_stinger, 335))
+    //   ));
 
       keyMap.get(Input.SCORE).button
         .onTrue(new SequentialCommandGroup(
@@ -642,13 +659,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // return new AutoScoreCommand(m_driveTrain, m_stinger, m_pincher);
-    // return new JustBalanceCommand(m_driveTrain);
-    // return new BackwardsBalance(m_driveTrain);
-    // return new MidThenBalance(m_driveTrain, m_stinger, m_pincher);
-    // return new MidThenCommunity(m_driveTrain, m_stinger, m_pincher);
-    // return AutoCommandContainer.midThenBalanceCommand(m_driveTrain,m_stinger,m_pincher); 
-    // return AutoCommandContainer.balanceCommand(m_driveTrain);
     return AutoCommandContainer.placeCubeHighCommand(m_driveTrain, m_stinger, m_pincher)
       .andThen(AutoCommandContainer.balanceCommand(m_driveTrain));
   }

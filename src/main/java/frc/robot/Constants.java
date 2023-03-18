@@ -28,6 +28,8 @@ public final class Constants {
     // public static final int kShooterSpark2 = 10;
     public static final int kExtendStingerSpark = 8;
     public static final int kRaiseStingerSpark = 9;
+    public static final int kPincherSparkLeft = 10;
+    public static final int kPincherSparkRight = 11;
 
     /** The upper limit at which the drive will stop using kDriveReduction */
     public static final double kDriveThreshold = 0.9;
