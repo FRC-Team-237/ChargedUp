@@ -43,7 +43,7 @@ import frc.robot.commands.autonomous.JustBalanceCommand;
 import frc.robot.commands.autonomous.MidThenBalance;
 import frc.robot.commands.autonomous.AutoCommandContainer;
 import frc.robot.subsystems.DriveTrain;
-
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.TalonRamseteControllerAbstraction;
@@ -100,8 +100,8 @@ public class RobotContainer {
   
     m_isRedAlliance = DriverStation.getAlliance() == DriverStation.Alliance.Red;
 
-    // Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
-    // Leds.getInstance().resetColor();
+    Leds.getInstance().setIsRedAlliance(m_isRedAlliance);
+    Leds.getInstance().resetColor();
 
     // Configure the button bindings
     configureButtonBindings();
@@ -130,7 +130,7 @@ public class RobotContainer {
             m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getX())
             : m_flightStick.getX(),
             m_driveTrain.m_preciseTurning ? ConversionHelper.posSqrt(m_flightStick.getY())
-            : m_driveActual);
+            : m_flightStick.getY());
           m_driveTrain.setScale(
             m_driveTrain.m_preciseTurning ? 0.15
             : ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .25, 0.75));
@@ -303,9 +303,12 @@ public class RobotContainer {
     keyMap.get(Input.PINCH).button
       .onTrue(new InstantCommand(() -> {
         if(!PickupPosition.isRunning)
-          m_pincher.setPincher(PinchState.CLOSED);
-          m_pincher.setPull(PullState.PULL);
-      }))
+          m_pincher.setPincher(PinchState.CLOSED); // Close the pincher
+          m_pincher.setPull(PullState.PULL); // Spin the wheels inward...
+      })
+      .andThen(new WaitCommand(1) // ...for 0.5 seconds
+      .andThen(new InstantCommand(() -> { m_pincher.setPull(PullState.STOP); })))) // Stop spinning the wheels
+
       .onFalse(new InstantCommand(() -> {
         if(!PickupPosition.isRunning)
           m_pincher.setPincher(PinchState.OPEN);
@@ -435,14 +438,15 @@ public class RobotContainer {
     
     keyMap.get(Input.PICKUP_AND_DRIVE_POS).button
       .onTrue(
-        new PickupPosition(m_stinger)
+        new InstantCommand(() -> { m_pincher.setPincher(PinchState.OPEN); })
+        .andThen(new WaitCommand(0.5))
+        .andThen(new PickupPosition(m_stinger)
           .withInterruptBehavior(InterruptionBehavior.kCancelIncoming)
-          .beforeStarting(() -> { m_pincher.setPincher(PinchState.OPEN); })
           .andThen(new WaitCommand(0.125))
           .andThen(new InstantCommand(() -> { m_stinger.setGrabber(GrabberState.PINCH); }))
           .andThen(new WaitCommand(0.5))
           .andThen(new DrivePosition(m_stinger, m_pincher))
-      );
+      ));
 
     // keyMap.get(Input.PICKUP_CLOSE).button
     //   .onTrue(new SequentialCommandGroup(
@@ -661,6 +665,7 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return AutoCommandContainer.placeCubeHighCommand(m_driveTrain, m_stinger, m_pincher)
       .andThen(AutoCommandContainer.balanceCommand(m_driveTrain));
+    // return AutoCommandContainer.placeCubeHighCommand2(m_driveTrain, m_stinger, m_pincher);
   }
 
 public Command highThenCommunity() {

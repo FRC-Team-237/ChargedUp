@@ -30,8 +30,8 @@ public class Pincher extends SubsystemBase {
     m_droppySolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kdroppySolenoidIndex);
     m_dropState = m_droppySolenoid.get() ? DropState.LOWERED : DropState.RAISED;
 
-    // m_leftPuller = new CANSparkMax(10, MotorType.kBrushless);
-    // m_rightPuller = new CANSparkMax(11, MotorType.kBrushless);
+    m_leftPuller = new CANSparkMax(10, MotorType.kBrushless);
+    m_rightPuller = new CANSparkMax(11, MotorType.kBrushless);
     pullState = PullState.STOP;
   }
 
@@ -41,12 +41,12 @@ public class Pincher extends SubsystemBase {
   public void setPull(PullState state) {
     this.pullState = state;
     if(state == PullState.STOP) {
-      // m_leftPuller.set(0);
-      // m_rightPuller.set(0);
+      m_leftPuller.set(0);
+      m_rightPuller.set(0);
       return;
     }
-    // m_leftPuller.set(state == PullState.PULL ? 0.25 : -0.25);
-    // m_rightPuller.set(state == PullState.PULL ? -0.25 : 0.25);
+    m_leftPuller.set(state == PullState.PULL ? 0.25 : -0.25);
+    m_rightPuller.set(state == PullState.PULL ? -0.25 : 0.25);
   }
 
   public void setPincher(PinchState state) {

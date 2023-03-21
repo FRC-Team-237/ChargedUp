@@ -33,6 +33,7 @@ public class AutoCommandContainer {
     double angleSign;
 
     private AutoCommandContainer(){}
+
     public static Command balanceCommand(DriveTrain driveTrain) {
         return new AutoDriveCommand(driveTrain, 1000, 0.75)
           .andThen(new AutoDriveCommand(driveTrain, -35000, 0.75))
@@ -80,6 +81,60 @@ public class AutoCommandContainer {
           .andThen(new AutoDriveCommand(driveTrain, -5000, 0.3)); 
     }
 
+    public static Command placeCubeHighCommand2(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
+      return new InstantCommand(() -> {
+        stinger.setGrabber(GrabberState.PINCH);
+        pincher.setDropper(DropState.LOWERED);
+        driveTrain.enableMotorBreak();
+      })
+      .andThen(new WaitCommand(0.25))
+
+      // Raise shoulder
+      .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.RAISED); }))
+
+      // Raise elbow until it can clear the dropper before raising it
+      .andThen(new RepeatCommand(new ElbowToPosition(stinger, 78.5))
+        .until(() -> { return stinger.m_elbowEncoder.getPosition() > 15; })
+
+        // Raise dropper
+        .andThen(new InstantCommand(() -> { pincher.setDropper(DropState.RAISED); }))
+
+      // Raise elbow until it can clear the scoring shelf before dropping shoulder
+      .andThen(new RepeatCommand(new ElbowToPosition(stinger, 78.5))
+        .until(() -> { return stinger.m_elbowEncoder.getPosition() > 37.5; })
+
+        // Drop shoulder
+        .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.LOWERED); }))
+
+      // Raise elbow until it's in scoring position
+      .andThen(new RepeatCommand(new ElbowToPosition(stinger, 78.5))
+        .until(() -> { return stinger.m_elbowEncoder.getPosition() > 75; })
+
+        // Extend to scoring position
+        .andThen(new ExtendToPosition(stinger, 335)))
+      
+      // Lower elbow until it's right above the scoring shelf
+      .andThen(new RepeatCommand(new ElbowToPosition(stinger, 68))
+        .until(() -> { return stinger.m_elbowEncoder.getPosition() < 70; })
+      
+      // Drop the cube
+      .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
+      
+      // Wait for the cube to settle
+      .andThen(new WaitCommand(0.5))
+
+      // All at the same time:
+      // Retract the extension
+      .andThen(new ExtendToPosition(stinger, 25))
+
+      // Drive backwards 12500 at 40%
+      //   halfway through: start going to travel position
+      .andThen(new AutoDriveCommand(driveTrain, -6250, 0.4))
+      .andThen(new DrivePosition(stinger, pincher))
+      .andThen(new AutoDriveCommand(driveTrain, -6250, 0.4))
+      )));
+    }
+
     public static Command placeCubeHighCommand(DriveTrain driveTrain, Stinger stinger, Pincher pincher){
         return new InstantCommand(() -> {
             stinger.setGrabber(GrabberState.PINCH);
@@ -111,7 +166,7 @@ public class AutoCommandContainer {
           .andThen(new InstantCommand(() -> { stinger.setGrabber(GrabberState.DROP); }))
           .andThen(new WaitCommand(0.2))
           .andThen(new ElbowToPosition(stinger, 75))
-          .andThen(new ExtendToPosition(stinger, 200))
+          .andThen(new ExtendToPosition(stinger, 50))
       
           .andThen(new WaitCommand(0.5))
 
