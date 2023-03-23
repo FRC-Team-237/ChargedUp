@@ -228,6 +228,8 @@ public class Stinger extends SubsystemBase {
       setExtend(StingerDirection.STOP);
     }
 
+    
+
     // kExtendSetpoint = extendSetPointEntry.getDouble(0);
     // kElbowSetpoint = elbowSetPointEntry.getDouble(0);
 
@@ -296,12 +298,15 @@ public class Stinger extends SubsystemBase {
 
   public void setExtend(StingerDirection direction) {
     stingerDirection = direction;
-    m_extendSpark.set(
-      ConversionHelper.clamp(
-      direction == StingerDirection.STOP ? 0
-      : (direction == StingerDirection.EXTEND ? extendSpeed : -extendSpeed),
-      -Integer.MAX_VALUE, 650)
-      );
+
+    double moveSpeed = extendSpeed;
+    if(direction == StingerDirection.RETRACT) {
+      moveSpeed *= -1;
+      if(m_extendEncoder.getPosition() < 150) moveSpeed *= 0.5;
+    }
+    if(direction == StingerDirection.STOP) moveSpeed = 0;
+
+    m_extendSpark.set(moveSpeed);
   }
 
   public void stopExtend() {

@@ -106,12 +106,15 @@ public class AutoCommandContainer {
         // Drop shoulder
         .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.LOWERED); }))
 
+        // Extend to position
+        .andThen(new ExtendToPosition(stinger, 380))
+
       // Raise elbow until it's in scoring position
       .andThen(new RepeatCommand(new ElbowToPosition(stinger, 78.5))
         .until(() -> { return stinger.m_elbowEncoder.getPosition() > 75; })
 
-        // Extend to scoring position
-        .andThen(new ExtendToPosition(stinger, 335)))
+        // Wait for things to settle
+        .andThen(new WaitCommand(0.4)))
       
       // Lower elbow until it's right above the scoring shelf
       .andThen(new RepeatCommand(new ElbowToPosition(stinger, 68))
@@ -123,13 +126,16 @@ public class AutoCommandContainer {
       // Wait for the cube to settle
       .andThen(new WaitCommand(0.5))
 
+      // Raise the elbow to clear the cube
+      .andThen(new ElbowToPosition(stinger, 75))
+      
       // All at the same time:
       // Retract the extension
       .andThen(new ExtendToPosition(stinger, 25))
 
       // Drive backwards 12500 at 40%
       //   halfway through: start going to travel position
-      .andThen(new AutoDriveCommand(driveTrain, -6250, 0.4))
+      .andThen(new AutoDriveCommand(driveTrain, -8500, 0.5))
       .andThen(new DrivePosition(stinger, pincher))
       .andThen(new AutoDriveCommand(driveTrain, -6250, 0.4))
       )));
@@ -187,7 +193,7 @@ public class AutoCommandContainer {
     }
 
     public static Command highThenCommunity(DriveTrain driveTrain, Stinger stinger, Pincher pincher) {
-        return placeCubeHighCommand(driveTrain, stinger, pincher)
+        return placeCubeHighCommand2(driveTrain, stinger, pincher)
         .andThen(new DrivePosition(stinger, pincher))
         .andThen(new AutoDriveCommand(driveTrain, -7500, 0.35))
         .andThen(new WaitCommand(0.5))

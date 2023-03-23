@@ -20,6 +20,8 @@ public class Pincher extends SubsystemBase {
   private CANSparkMax m_rightPuller;
   private PullState pullState;
 
+  public PinchState pinchState;
+
   public enum PinchState { OPEN, CLOSED };
   public enum DropState { RAISED, LOWERED };
   public enum PullState { STOP, PUSH, PULL };
@@ -53,6 +55,7 @@ public class Pincher extends SubsystemBase {
     if (m_dropState == DropState.RAISED) {
       return;
     }
+    pinchState = state;
     m_intakeSolenoid.set(state == PinchState.CLOSED);
   }
 
