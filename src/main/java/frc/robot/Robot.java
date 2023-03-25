@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -73,6 +75,10 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.m_driveTrain.m_brakeSolenoid.set(true);
+    m_robotContainer.m_driveTrain.m_motors.forEach(motor -> {
+      motor.setNeutralMode(NeutralMode.Coast);
+    });
     m_robotContainer.m_stinger.setElbow(ElbowDirection.STOP);
     m_robotContainer.m_stinger.setExtend(StingerDirection.STOP);
 
@@ -106,6 +112,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.m_driveTrain.m_brakeSolenoid.set(true);
+    m_robotContainer.m_driveTrain.m_motors.forEach(motor -> {
+      motor.setNeutralMode(NeutralMode.Coast);
+    });
     m_robotContainer.m_stinger.setElbow(ElbowDirection.STOP); // Note: this makes it stay at its current position
     m_robotContainer.m_stinger.setExtend(StingerDirection.STOP);
 

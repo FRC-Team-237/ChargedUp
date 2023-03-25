@@ -19,6 +19,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
@@ -34,7 +36,7 @@ public class DriveTrain extends SubsystemBase {
   private final WPI_TalonFX m_motorFL;
   private final WPI_TalonFX m_motorBR;
   private final WPI_TalonFX m_motorBL;
-  private List<WPI_TalonFX> m_motors;
+  public List<WPI_TalonFX> m_motors;
 
   private final MotorControllerGroup m_controllerGroupL;
   private final MotorControllerGroup m_controllerGroupR;
@@ -47,6 +49,8 @@ public class DriveTrain extends SubsystemBase {
   private double m_speedScale;
   public boolean m_preciseTurning = false;
   public boolean m_brake = false;
+  public boolean m_pistonBrake = false;
+  public Solenoid m_brakeSolenoid = new Solenoid(Constants.kPCM, PneumaticsModuleType.CTREPCM, Constants.kBrakeSolenoid);
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
@@ -82,19 +86,40 @@ public class DriveTrain extends SubsystemBase {
     resetEncoders();
     m_odometry = new DifferentialDriveOdometry(
       new Rotation2d(0.0,0.0),
-      0, 0); 
+      0, 0);
     m_speedScale = 1.0;
   }
 
-  public void enableMotorBreak() {
+  public void toggleMotorBrake() {
+    m_brake = !m_brake;
     m_motors.forEach(motor -> {
-      motor.setNeutralMode(NeutralMode.Brake);
+      motor.setNeutralMode(m_brake ? NeutralMode.Brake : NeutralMode.Coast);
     });
+    m_brakeSolenoid.set(!m_brake);
+  }
+
+  public void disablePistonBrake() {
+    m_pistonBrake = false;
+    m_brakeSolenoid.set(true);
+    Leds.getInstance().resetColor();
+  }
+  public void enablePistonBrake() {
+    m_pistonBrake = true;
+    m_brakeSolenoid.set(false);
+    Leds.getInstance().setColor(Constants.Colors.kGreen);
   }
 
   public void disableMotorBreak() {
+    m_brake = false;
     m_motors.forEach(motor -> {
       motor.setNeutralMode(NeutralMode.Coast);
+    });
+  }
+
+  public void enableMotorBreak() {
+    m_brake = true;
+    m_motors.forEach(motor -> {
+      motor.setNeutralMode(NeutralMode.Brake);
     });
   }
 

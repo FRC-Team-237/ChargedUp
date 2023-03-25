@@ -87,7 +87,7 @@ public class AutoCommandContainer {
         pincher.setDropper(DropState.LOWERED);
         driveTrain.enableMotorBreak();
       })
-      .andThen(new WaitCommand(0.25))
+      .andThen(new WaitCommand(0.6))
 
       // Raise shoulder
       .andThen(new InstantCommand(() -> { stinger.setShoulder(ShoulderState.RAISED); }))
@@ -138,6 +138,7 @@ public class AutoCommandContainer {
       .andThen(new AutoDriveCommand(driveTrain, -8500, 0.5))
       .andThen(new DrivePosition(stinger, pincher))
       .andThen(new AutoDriveCommand(driveTrain, -6250, 0.4))
+      .andThen(new WaitCommand(0.5))
       )));
     }
 

@@ -133,7 +133,7 @@ public class RobotContainer {
             : m_flightStick.getY());
           m_driveTrain.setScale(
             m_driveTrain.m_preciseTurning ? 0.2
-            : ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .25, 0.75));
+            : ConversionHelper.mapRange(-m_flightStick.getZ(), -1, 1, .4, 0.75));
         }, m_driveTrain));
   }
 
@@ -238,9 +238,14 @@ public class RobotContainer {
 
     keyMap.get(Input.TOGGLE_BRAKES).button
       .onTrue(new InstantCommand(() -> {
-        m_driveTrain.m_brake = !m_driveTrain.m_brake;
-        if(m_driveTrain.m_brake) m_driveTrain.enableMotorBreak();
-        else m_driveTrain.disableMotorBreak();
+        // m_driveTrain.m_brake = !m_driveTrain.m_brake;
+        // if(m_driveTrain.m_brake) m_driveTrain.enableMotorBreak();
+        // else m_driveTrain.disableMotorBreak();
+        if(m_driveTrain.m_pistonBrake) {
+          m_driveTrain.disablePistonBrake();
+        } else {
+          m_driveTrain.enablePistonBrake();
+        }
         SmartDashboard.putBoolean("Brakes", m_driveTrain.m_brake);
       }));
 
@@ -368,13 +373,13 @@ public class RobotContainer {
     keyMap.get(Input.SCORE_MID).button
       .onTrue(
         new ExtendToPosition(m_stinger, 0)
-        .andThen(new RepeatCommand(new ElbowToPosition(m_stinger, 67))
+        .andThen(new RepeatCommand(new ElbowToPosition(m_stinger, 73))
         .until(() -> { return m_stinger.m_elbowEncoder.getPosition() > 35; }))
         .andThen(new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.LOWERED); }))
       );
 
     keyMap.get(Input.SCORE_HIGH).button
-      .onTrue(new RepeatCommand(new ElbowToPosition(m_stinger, 78.5))
+      .onTrue(new RepeatCommand(new ElbowToPosition(m_stinger, 84))
       .until(() -> { return m_stinger.m_elbowEncoder.getPosition() > 35; })
       .andThen(new ExtendToPosition(m_stinger, 335))
       .andThen(new InstantCommand(() -> { m_stinger.setShoulder(ShoulderState.LOWERED); })));

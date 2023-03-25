@@ -39,6 +39,7 @@ public final class Constants {
     public static final int kGrabbySolenoidIndex = 4;
     public static final int kPincherSolenoidIndex = 7;
     public static final int kStingerSolenoid = 6;
+    public static final int kBrakeSolenoid = 3;
     public static final int kdroppySolenoidIndex = 5;
     public static final int kSenseyGrabby = 0;
     public static final int kSenseyShooty = 1;
@@ -101,7 +102,8 @@ public final class Constants {
         public static final double kMinSpeed = 0.05; 
     }
     public final class Colors {
-        public static final double kBlue = 0.85;
+        public static final double kBlue = 0.3;
+        public static final double kGreen = 0.85;
         public static final double kRed = 0.61;
         public static final double kOneBall = 0.15;
         public static final double kTwoBalls = 0.35;
