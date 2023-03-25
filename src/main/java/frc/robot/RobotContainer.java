@@ -328,7 +328,7 @@ public class RobotContainer {
           m_stinger.setShoulder(ShoulderState.RAISED);
           m_pincher.setDropper(DropState.RAISED);
         }, m_stinger),
-        new ElbowToPosition(m_stinger, 39),
+        new ElbowToPosition(m_stinger, 37),
         new ExtendToPosition(m_stinger, 0)
       ));
     
