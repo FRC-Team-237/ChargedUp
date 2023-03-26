@@ -451,6 +451,8 @@ public class RobotContainer {
     
     Command HighCommunity = AutoCommandContainer.highThenCommunity(m_driveTrain, m_stinger, m_pincher);
 
+    Command HighStay = AutoCommandContainer.highThenStay(m_driveTrain, m_stinger, m_pincher);
+
     System.out.println("============================");
     if(m_arcadePanel.getRawButton(21)) {
       System.out.println("High then balance selected");
@@ -459,6 +461,10 @@ public class RobotContainer {
     if(m_arcadePanel.getRawButton(22)) {
       System.out.println("High then community selected");
       return HighCommunity;
+    }
+    if(m_arcadePanel.getRawButton(24)) {
+      System.out.println("High then stay selected");
+      return HighStay;
     }
 
     System.out.println("No auto selected -> default: High then community");
