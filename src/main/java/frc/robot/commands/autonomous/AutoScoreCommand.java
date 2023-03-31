@@ -4,24 +4,14 @@
 
 package frc.robot.commands.autonomous;
 
-import java.time.Instant;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
-import frc.robot.commands.DrivePosition;
-import frc.robot.commands.ElbowToPosition;
-import frc.robot.commands.ExtendToPosition;
-import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
-import frc.robot.subsystems.Pincher.DropState;
-import frc.robot.subsystems.Stinger.GrabberState;
-import frc.robot.subsystems.Stinger.ShoulderState;
 
 public class AutoScoreCommand extends CommandBase {
 

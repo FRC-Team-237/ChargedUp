@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.ConversionHelper;
 import frc.robot.subsystems.DriveTrain;
@@ -59,7 +58,7 @@ public class AutoBalance extends PIDCommand {
 
   @Override
   public void execute() {
-    // TODO Auto-generated method stub
+    
     double output = getController().calculate(m_drive.getPitch() - target);
     boolean isBlue = DriverStation.getAlliance() == Alliance.Blue;
     output = ConversionHelper.clamp(output, isBlue ? -0.20 : -0.15, isBlue ? 0.20 : 0.15);

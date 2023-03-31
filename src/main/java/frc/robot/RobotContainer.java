@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.BooleanSupplier;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -31,17 +29,10 @@ import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
 import frc.robot.commands.PickupPosition;
 import frc.robot.commands.TargetConePID;
-import frc.robot.commands.TargetPeg;
 import frc.robot.commands.TargetPegPID;
 import frc.robot.commands.ToggleLight;
-import frc.robot.commands.TurnToAngle;
 import frc.robot.commands.autonomous.AutoCommandContainer;
-import frc.robot.commands.autonomous.AutoScoreCommand;
-import frc.robot.commands.autonomous.BackwardsBalance;
 import frc.robot.commands.autonomous.BackwardsBalance2;
-import frc.robot.commands.autonomous.JustBalanceCommand;
-import frc.robot.commands.autonomous.MidThenBalance;
-import frc.robot.commands.autonomous.AutoCommandContainer;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Pincher;
