@@ -7,7 +7,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.ConversionHelper;
-import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
 
 public class TargetPeg extends CommandBase {

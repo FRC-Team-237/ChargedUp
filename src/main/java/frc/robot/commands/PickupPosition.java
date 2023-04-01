@@ -3,11 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.ConversionHelper;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
-import frc.robot.subsystems.Pincher.PinchState;
 import frc.robot.subsystems.Stinger.GrabberState;
 import frc.robot.subsystems.Stinger.ShoulderState;
 
