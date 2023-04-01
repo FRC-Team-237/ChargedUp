@@ -13,6 +13,9 @@ public class LimeLightInterface {
     public LimeLightInterface(String address){
         m_limelightAddress = address; 
     }
+    public double getTHor() {
+        return NetworkTableInstance.getDefault().getTable(m_limelightAddress).getEntry("thor").getDouble(0);
+    }
     public double getTX(){
         return NetworkTableInstance.getDefault().getTable(m_limelightAddress).getEntry("tx").getDouble(0);
     }
@@ -23,7 +26,7 @@ public class LimeLightInterface {
         return NetworkTableInstance.getDefault().getTable(m_limelightAddress).getEntry("tv").getDouble(0);
     }
     public boolean hasTarget() {
-        return (getTV() < 1.0); 
+        return (getTV() >= 1.0); 
     }
     public double getPipline(){
         return NetworkTableInstance.getDefault().getTable(m_limelightAddress).getEntry("getpipe").getDouble(0);

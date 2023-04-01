@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.ConversionHelper;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.AutoDriveCommand;
+import frc.robot.commands.AutoShelfGrab;
 import frc.robot.commands.DrivePosition;
 import frc.robot.commands.ElbowToPosition;
 import frc.robot.commands.ExtendToPosition;
@@ -170,6 +171,7 @@ public class RobotContainer {
     PRECISE_TURNING,
     TOGGLE_BRAKES,
     AUTO_BALANCE,
+    AUTO_SHELF,
   }
 
   /**
@@ -215,6 +217,7 @@ public class RobotContainer {
     keyMap.put(Input.PRECISE_TURNING, new InputButton(flightStick, "Precise Turning", 2));
     keyMap.put(Input.TOGGLE_BRAKES,   new InputButton(flightStick, "Toggle brakes", 11));
     keyMap.put(Input.AUTO_BALANCE,    new InputButton(flightStick, "Auto Balance", 10));
+    keyMap.put(Input.AUTO_SHELF,      new InputButton(flightStick, "Grab from shelf", 3));
     keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 26));
     keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     30));
     keyMap.put(Input.RAISE_ELBOW,     new InputButton(arcadePanel, "Raise Elbow",     29));
@@ -226,12 +229,20 @@ public class RobotContainer {
     keyMap.put(Input.SCORE_HIGH,      new InputButton(arcadePanel, "Score high", 32));
     keyMap.put(Input.SCORE_MID,       new InputButton(arcadePanel, "Score mid", 31));
     keyMap.put(Input.SCORE,           new InputButton(arcadePanel, "Score", 5));
-
     keyMap.put(Input.GRAB,            new InputButton(arcadePanel, "Grab",            4));
 
     keyMap.forEach((input, value) -> {
       // SmartDashboard.putString(value.description, value.controller.name + " [" + value.buttonIndex + "]");
     });
+
+    keyMap.get(Input.AUTO_SHELF).button
+      .onTrue(
+        new ElbowToPosition(m_stinger, 35.75)
+        .andThen(new ExtendToPosition(m_stinger, 15))
+      );
+
+    keyMap.get(Input.AUTO_SHELF).button
+      .whileTrue(new AutoShelfGrab(m_stinger, m_driveTrain));
 
     keyMap.get(Input.AUTO_BALANCE).button
       .whileTrue(new AutoBalance(m_driveTrain, 0.0175, 0, 0, 5, 0));
@@ -328,7 +339,7 @@ public class RobotContainer {
           m_stinger.setShoulder(ShoulderState.RAISED);
           m_pincher.setDropper(DropState.RAISED);
         }, m_stinger),
-        new ElbowToPosition(m_stinger, 37),
+        new ElbowToPosition(m_stinger, 35.75),
         new ExtendToPosition(m_stinger, 0)
       ));
     
