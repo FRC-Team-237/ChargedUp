@@ -52,8 +52,10 @@ public class AutoShelfGrab extends CommandBase {
         
         m_driveTrain.driveRaw(adjustedRotation, -0.25);
 
-      } else {
+      } else if(hasTarget) {
         m_stinger.setGrabber(GrabberState.PINCH);
+        finished = true;
+      } else {
         finished = true;
       }
     }

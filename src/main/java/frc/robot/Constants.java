@@ -102,8 +102,8 @@ public final class Constants {
         public static final double kMinSpeed = 0.05; 
     }
     public final class Colors {
-        public static final double kBlue = 0.3;
-        public static final double kGreen = 0.85;
+        public static final double kBlue = 0.79;
+        public static final double kWhite = 0.93;
         public static final double kRed = 0.61;
         public static final double kOneBall = 0.15;
         public static final double kTwoBalls = 0.35;

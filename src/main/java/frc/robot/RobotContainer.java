@@ -206,8 +206,8 @@ public class RobotContainer {
     keyMap.put(Input.TARGET_MID,      new InputButton(flightStick, "Target Mid", 9));
     keyMap.put(Input.TARGET_CONE,     new InputButton(flightStick, "Target Cone", 8));
     keyMap.put(Input.PRECISE_TURNING, new InputButton(flightStick, "Precise Turning", 2));
-    keyMap.put(Input.TOGGLE_BRAKES,   new InputButton(flightStick, "Toggle brakes", 11));
-    keyMap.put(Input.AUTO_BALANCE,    new InputButton(flightStick, "Auto Balance", 10));
+    keyMap.put(Input.TOGGLE_BRAKES,   new InputButton(flightStick, "Toggle brakes", 10));
+    keyMap.put(Input.AUTO_BALANCE,    new InputButton(flightStick, "Auto Balance", 11));
     keyMap.put(Input.AUTO_SHELF,      new InputButton(flightStick, "Grab from shelf", 3));
     keyMap.put(Input.TOGGLE_SHOULDER, new InputButton(arcadePanel, "Toggle Shoulder", 26));
     keyMap.put(Input.LOWER_ELBOW,     new InputButton(arcadePanel, "Lower Elbow",     30));
@@ -248,7 +248,6 @@ public class RobotContainer {
         } else {
           m_driveTrain.enablePistonBrake();
         }
-        SmartDashboard.putBoolean("Brakes", m_driveTrain.m_brake);
       }));
 
     keyMap.get(Input.GRAB).button

@@ -27,7 +27,7 @@ public class Stinger extends SubsystemBase {
   private CANSparkMax m_extendSpark;
   private CANSparkMax m_elbowSpark;
   private ShoulderState m_shoulderState;
-  private GrabberState m_grabberState;
+  public GrabberState m_grabberState;
 
   public DigitalInput m_shoulderInPlace;
 

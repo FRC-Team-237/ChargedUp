@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Pincher;
 import frc.robot.subsystems.Stinger;
 import frc.robot.subsystems.Pincher.DropState;
+import frc.robot.subsystems.Stinger.GrabberState;
 import frc.robot.subsystems.Stinger.ShoulderState;
 
 public class DrivePosition extends CommandBase {
@@ -21,9 +22,8 @@ public class DrivePosition extends CommandBase {
     public void initialize() {
       m_stinger.setShoulder(ShoulderState.LOWERED);
       m_pincher.setDropper(DropState.RAISED);
-      m_stinger.setExtendSetPoint(10
-      );
-      m_stinger.setElbowSetPoint(34);
+      m_stinger.setExtendSetPoint(10);
+      m_stinger.setElbowSetPoint(m_stinger.m_grabberState == GrabberState.PINCH ? 34 : 14);
       m_stinger.enableElbowClosedLoop();
       m_stinger.enableExtendClosedLoop();
     }

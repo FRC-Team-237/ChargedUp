@@ -48,7 +48,9 @@ public class AutoBalance extends PIDCommand {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_drive.disableMotorBreak();
+  }
  
   // Returns true when the command should end.
   @Override

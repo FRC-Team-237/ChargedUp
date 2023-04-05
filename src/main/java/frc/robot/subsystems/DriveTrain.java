@@ -67,6 +67,7 @@ public class DriveTrain extends SubsystemBase {
       motor.configOpenloopRamp(Constants.DTConsts.kRampRate);
       motor.configAllowableClosedloopError(0, Constants.DTConsts.kClosedLoopError, Constants.DTConsts.kTimeOut);
       motor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.DTConsts.kStatusFrame, Constants.DTConsts.kTimeOut);
+      motor.setNeutralMode(NeutralMode.Coast);
     });
 
     m_motorBL.follow(m_motorFL);
@@ -98,11 +99,13 @@ public class DriveTrain extends SubsystemBase {
     m_pistonBrake = false;
     m_brakeSolenoid.set(true);
     Leds.getInstance().resetColor();
+    SmartDashboard.putBoolean("Brakes", m_pistonBrake);
   }
   public void enablePistonBrake() {
     m_pistonBrake = true;
     m_brakeSolenoid.set(false);
-    Leds.getInstance().setColor(Constants.Colors.kGreen);
+    Leds.getInstance().setColor(Constants.Colors.kWhite);
+    SmartDashboard.putBoolean("Brakes", m_pistonBrake);
   }
 
   public void disableMotorBreak() {
